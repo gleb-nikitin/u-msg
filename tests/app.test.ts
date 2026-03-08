@@ -22,10 +22,6 @@ describe("backend skeleton", () => {
   });
 
   const notImplementedRoutes = [
-    { method: "GET" as const, url: "/api/chains" },
-    { method: "GET" as const, url: "/api/chains/test-chain/messages" },
-    { method: "POST" as const, url: "/api/chains/test-chain/read" },
-    { method: "GET" as const, url: "/api/inbox" },
     { method: "GET" as const, url: "/api/search" },
     { method: "GET" as const, url: "/api/sessions" },
   ];

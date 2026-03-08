@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 003-chain-reads-and-read-state
+- accepted: 2026-03-08
+- outcome: chain history reads, chain/inbox unread aggregation, and mark-read cursor handling are implemented; long-chain truncation and silent list limits were removed, latest mark-read uses targeted max-seq lookup, and identifier/limit validation is now strict at route boundaries.
+- verification: `npm run typecheck`, `npm test` (63/63), targeted regression coverage for >1000 message history, >50 chain lists, strict limit parsing, and identifier hardening
+- residuals: unread aggregation remains intentionally brute-force/in-process for MVP; no caching/invalidation was added in this spec by design.
+
 ## 002-chain-write-flows
 - accepted: 2026-03-08
 - outcome: write endpoints are implemented with protocol validation, summary fallback, duplicate handling, stable validation/chain/queue error mapping, and `response_from`-implies-notify persistence.

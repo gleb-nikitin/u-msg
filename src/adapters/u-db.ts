@@ -50,17 +50,25 @@ export class UDbAdapter {
   }
 
   /** Read messages from hub-mail. */
-  async readMail(where: string, order: string, limit: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--where", where, "--order", order, "--limit", String(limit)];
+  async readMail(where: string, order: string, limit?: number): Promise<StoredMessage[]> {
+    const args = ["hub-mail", "--where", where, "--order", order];
+    if (limit !== undefined) args.push("--limit", String(limit));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
   }
 
   /** Read all recent mail (no where clause). */
-  async readRecentMail(order: string, limit: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--order", order, "--limit", String(limit)];
+  async readRecentMail(order: string, limit?: number): Promise<StoredMessage[]> {
+    const args = ["hub-mail", "--order", order];
+    if (limit !== undefined) args.push("--limit", String(limit));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
+  }
+
+  /** Read the maximum seq for a chain. Returns 0 if chain is empty. */
+  async readMaxSeq(chainId: string): Promise<number> {
+    const rows = await this.readMail(`chain_id='${chainId}'`, "seq DESC", 1);
+    return rows.length > 0 ? rows[0]!.seq : 0;
   }
 
   /** Read cursors from hub-mail_read_cursor. */

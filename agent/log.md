@@ -19,3 +19,5 @@
 2026-03-08 13:12 | policy | auditor launch escalation is explicit | Tell the user whenever an auditor launch is needed during spec acceptance or execution.
 2026-03-08 13:14 | policy | executor handoff includes re-index | User will re-index the project with Code Indexer after each executor completion.
 2026-03-08 13:16 | milestone | accepted spec 002 and advanced roadmap | Verified rebuild, typecheck, tests, live create/duplicate/append probes, malformed JSON handling, and stored row shape; archived spec 002 and activated spec 003.
+2026-03-08 15:06 | validation | spec 003 acceptance review blocked | Full-history and latest-read paths are still capped, inbox inherits a silent limit, and identifier/query validation is too loose; keep spec 003 active and send a narrow fix brief without launching an auditor.
+2026-03-08 15:26 | milestone | accepted spec 003 and advanced roadmap | Re-verified typecheck and tests (63/63), confirmed long-chain and strict-validation regressions are covered, archived spec 003, and activated spec 004.

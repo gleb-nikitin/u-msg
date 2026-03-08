@@ -11,14 +11,14 @@
 - `./agent/how-to/how-to-open-ai.md` — lazy-load note for the future OpenAI adapter direction, tradeoffs, and cited source paths.
 
 ## Known Debt
-- Specs `001` and `002` are complete; specs `003` through `005` remain to be implemented.
+- Specs `001` through `003` are complete; specs `004` and `005` remain to be implemented.
 - Search/session remain intentionally shallow until Spec `005` defines the temporary contract behavior and ops checks.
 - Provider adapter work for Claude, OpenAI, and Ollama is intentionally deferred and still needs a later spec, with Ollama explicitly last.
 - OpenAI adapter decomposition is still pending, but the current default is `Responses API`; `Agents SDK` is only a fallback if later requirements need OpenAI-native orchestration.
 
 ## Session Handoff
 - date: 2026-03-08
-- what changed: accepted Spec `002` after rebuild and live runtime verification, archived it, advanced the roadmap to Spec `003`, and recorded that no extra auditor launch was needed at the Spec `002` boundary.
-- why: the write path now matches the canonical protocol both in tests and in the shipped runtime path, including malformed JSON classification, duplicate handling, summary fallback, queue-failure mapping, and `response_from`-implies-notify persistence.
-- risks: Spec `003` can still over-engineer unread aggregation or blur the accepted adapter boundary; the always-on `u-msg-ui` launcher still occupies host ports `8000`, `8001`, and `5173`, so backend/UI integration must deliberately coordinate port ownership.
-- next checks: summon one executor for Spec `003`, preserve the accepted write path and adapter boundary, keep unread aggregation brute-force for MVP, and explicitly tell the user if an auditor launch becomes necessary before moving on to Spec `004`.
+- what changed: accepted Spec `003`, archived it, and advanced roadmap state to Spec `004` after re-verifying typecheck/tests and regression coverage for long-chain history, latest mark-read, list limits, and identifier/limit hardening.
+- why: the previous acceptance blockers were closed in behavior and tests, so the read/unread contract is now stable enough to move into realtime wiring.
+- risks: unread aggregation remains intentionally brute-force for MVP; realtime work must avoid adding a durable delivery layer; the always-on `u-msg-ui` launcher still occupies host ports `8000`, `8001`, and `5173`, so backend/UI integration must deliberately coordinate port ownership.
+- next checks: summon one executor for Spec `004`, keep fan-out strictly in-process, verify event payload compatibility with UI expectations, and tell the user if an auditor launch becomes necessary at the next boundary.

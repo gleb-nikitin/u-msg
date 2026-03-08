@@ -46,10 +46,10 @@ Implement chain history reads, inbox/list surfaces, unread aggregation, and mark
 - Do not add caching, background refresh, or invalidation logic to unread aggregation in MVP.
 
 ## Acceptance Criteria
-- [ ] 1. `GET /api/chains/{chain_id}/messages` returns full ordered chain history.
-- [ ] 2. `GET /api/chains` and `GET /api/inbox` return correct unread counts derived in application code.
-- [ ] 3. `POST /api/chains/{chain_id}/read` updates or creates a cursor correctly and returns `204 No Content`.
-- [ ] 4. Read/unread behavior matches the protocol rule that only explicit cursor updates mark a chain read.
+- [x] 1. `GET /api/chains/{chain_id}/messages` returns full ordered chain history.
+- [x] 2. `GET /api/chains` and `GET /api/inbox` return correct unread counts derived in application code.
+- [x] 3. `POST /api/chains/{chain_id}/read` updates or creates a cursor correctly and returns `204 No Content`.
+- [x] 4. Read/unread behavior matches the protocol rule that only explicit cursor updates mark a chain read.
 
 ## Verification
 - `npm run typecheck`
