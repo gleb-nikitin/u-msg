@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Current Status
-- Active spec: `005`
+- Active spec: `none`
 - Next spec: `none`
-- Specs `001` through `004` are accepted; spec `005` remains queued for implementation.
+- Specs `001` through `005` are accepted; MVP backend scope is complete.
 
 ## Build Sequence
 1. Spec `001`: backend skeleton and storage adapter boundaries.

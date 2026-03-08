@@ -21,19 +21,36 @@ describe("backend skeleton", () => {
     expect(res.json()).toEqual({ status: "ok" });
   });
 
-  const notImplementedRoutes = [
-    { method: "GET" as const, url: "/api/search" },
-    { method: "GET" as const, url: "/api/sessions" },
-  ];
-
-  for (const { method, url } of notImplementedRoutes) {
-    it(`${method} ${url} returns 501 with structured error`, async () => {
-      const res = await app.inject({ method, url });
-      expect(res.statusCode).toBe(501);
-      const body = res.json();
-      expect(body).toHaveProperty("error");
-      expect(body).toHaveProperty("code", "NOT_IMPLEMENTED");
-      expect(body).toHaveProperty("statusCode", 501);
+  it("GET /api/search returns temporary not_wired response", async () => {
+    const res = await app.inject({ method: "GET", url: "/api/search?q=hello" });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body).toEqual({
+      results: [],
+      query: "hello",
+      scope: null,
+      status: "not_wired",
     });
-  }
+  });
+
+  it("GET /api/search with project scope echoes scope", async () => {
+    const res = await app.inject({ method: "GET", url: "/api/search?q=test&project=myproj" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().scope).toBe("myproj");
+  });
+
+  it("GET /api/search without q returns 400", async () => {
+    const res = await app.inject({ method: "GET", url: "/api/search" });
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toHaveProperty("code", "BAD_REQUEST");
+  });
+
+  it("GET /api/sessions returns temporary not_wired response", async () => {
+    const res = await app.inject({ method: "GET", url: "/api/sessions" });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({
+      sessions: [],
+      status: "not_wired",
+    });
+  });
 });

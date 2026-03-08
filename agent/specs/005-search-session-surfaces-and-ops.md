@@ -34,10 +34,10 @@ Finish the MVP backend surface by defining the temporary search/session behavior
 - Do not let temporary search/session behavior silently diverge from the documented contract.
 
 ## Acceptance Criteria
-- [ ] 1. `GET /api/search` and `GET /api/sessions` exist with documented, deterministic behavior.
-- [ ] 2. The temporary behavior is explicit enough that UI work and later backend work can proceed without guessing.
-- [ ] 3. An operational validation script exists and covers the complete MVP backend surface after Specs `001` through `004`.
-- [ ] 4. KB handoff notes capture unresolved follow-up for real search/session implementation.
+- [x] 1. `GET /api/search` and `GET /api/sessions` exist with documented, deterministic behavior.
+- [x] 2. The temporary behavior is explicit enough that UI work and later backend work can proceed without guessing.
+- [x] 3. An operational validation script exists and covers the complete MVP backend surface after Specs `001` through `004`.
+- [x] 4. KB handoff notes capture unresolved follow-up for real search/session implementation.
 
 ## Verification
 - `npm run typecheck`

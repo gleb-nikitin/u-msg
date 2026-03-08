@@ -44,6 +44,21 @@
 - Test runner: Vitest 3
 - Dev runner: tsx
 
+## Temporary Surface (Spec 005)
+- `GET /api/search?q={query}&project={project?}` returns `200` with `{ results: [], query, scope, status: "not_wired" }`. Requires non-empty `q`; returns `400` otherwise.
+- `GET /api/sessions` returns `200` with `{ sessions: [], status: "not_wired" }`.
+- Both endpoints are explicitly temporary. The `status: "not_wired"` field signals to UI and future executors that real implementation is deferred.
+- Follow-up for real search/session behavior is tracked in `kb.md`.
+
+## Operational Validation
+| Command | Purpose |
+|---------|---------|
+| `./agent/scripts/check-mvp.sh` | Validate all MVP endpoints and WS against a running server |
+
+- Requires `UMSG_CHECK_URL` pointing at a running `u-msg` server (no default — port `8000` is occupied by the always-on stub). Example: `UMSG_CHECK_URL=http://localhost:18080 ./agent/scripts/check-mvp.sh`.
+- Requires `curl` and `node` (with `ws` available transitively via `@fastify/websocket` in `node_modules`).
+- Covers: health, search, sessions, chains (validation errors), inbox (validation errors), and WebSocket connection handshake.
+
 ## Validation
 - `npm run typecheck` must pass before commits.
 - `npm test` must pass before commits.
@@ -51,5 +66,6 @@
 - `npm test -- read-state` runs read/unread/mark-read flow tests (mocked u-db, no live storage needed).
 - `npm test -- realtime` runs WebSocket realtime fan-out tests (real WebSocket connections, mocked u-db).
 - `npm run preflight` should pass before first backend work on a new machine.
+- `UMSG_CHECK_URL=http://localhost:<port> ./agent/scripts/check-mvp.sh` validates the full backend surface against a running server.
 - Use the always-on server ingress for UI-backed tests once the backend is ready to replace or coexist with the current stub path deliberately.
 - After each executor completion, the user will re-index the project with Code Indexer; assume fresh index data is available after that handoff step.

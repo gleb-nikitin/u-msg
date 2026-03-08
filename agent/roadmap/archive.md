@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 005-search-session-surfaces-and-ops
+- accepted: 2026-03-08
+- outcome: search and sessions endpoints now return deterministic temporary `status: "not_wired"` responses, the MVP check script validates HTTP + WS contract surfaces, and the KB documents real search/session follow-up and port-conflict operational constraints.
+- verification: `npm run typecheck`, `npm test` (78/78), `UMSG_CHECK_URL=http://127.0.0.1:18080 ./agent/scripts/check-mvp.sh` (10 passed, 0 failed)
+- residuals: search and sessions remain intentionally temporary/provider-neutral and require a follow-up spec for permanent models.
+
 ## 004-realtime-and-ui-contract-wiring
 - accepted: 2026-03-08
 - outcome: realtime `new_message` fan-out is wired end-to-end with participant-scoped WebSocket subscriptions, in-process connection registry, write-path publisher hooks, and a payload shape that matches the frozen UI contract.

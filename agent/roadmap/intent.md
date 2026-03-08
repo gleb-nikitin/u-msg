@@ -26,3 +26,4 @@
 - 2026-03-08 | Provider integrations are postponed until after the protocol-first MVP | Keep MVP focused on one provider-neutral message contract and add Claude/OpenAI/Ollama adapters later.
 - 2026-03-08 | Provider order is Claude first, OpenAI second, Ollama last | Match current knowledge-source availability and keep the most local/control-friendly path first.
 - 2026-03-08 | OpenAI adapter default is Responses, not Agents SDK | Keep the future adapter closer to the provider-neutral protocol and use Agents SDK only if higher-level orchestration is later justified.
+- 2026-03-08 | MVP backend slice (Specs 001-005) is complete | Core protocol, write/read/unread state, realtime fan-out, and temporary search/session contracts are now stable; next work should start from a post-MVP spec.

@@ -1,9 +1,9 @@
 # Roadmap State
 
-- active_spec: 005
-- last_finished: 004
+- active_spec: none
+- last_finished: 005
 - next_spec: none
 - queue: []
-- status_note: Specs 001-004 are accepted. Execute spec 005 next to finalize temporary search/session surfaces and operational checks without introducing provider-specific behavior.
+- status_note: Specs 001-005 are accepted and MVP backend surface is complete. No active execution spec; next work should start from a new post-MVP spec (likely provider-adapter planning/implementation) while preserving protocol-first boundaries.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md`, then `./agent/specs/005-search-session-surfaces-and-ops.md` before execution
+- context_note: load `./agent/docs/index.md`, then choose protocol by user request; if execution resumes, create/activate the next post-MVP spec before coding.
