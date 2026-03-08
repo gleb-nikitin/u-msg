@@ -3,19 +3,30 @@
 ## Snapshot
 - Project: `u-msg`
 - Workspace: `/Users/glebnikitin/work/code/u-msg`
-- Active spec: `none`
-- Next spec: `001`
+- Active spec: `002`
+- Next spec: `003`
 - Canonical entrypoint: `./agent/docs/index.md`
 
 ## Current Reality
 - Canonical protocol now uses `producer_key` for idempotency and service-owned `msg_id`, `chain_id`, and `seq`.
 - `u-db` is ready as the MVP storage boundary; unread aggregation and cursor upsert remain application-side.
+- Spec `001` is complete: the TypeScript/Fastify/Vitest backend skeleton, `u-db` adapter boundary, and structured placeholder routes are now in place.
+- The shared always-on ingress workspace at `/Users/glebnikitin/work/server` is available for integration testing, and `u-msg-ui` is already running there behind nginx/launchd.
+- Provider integrations are intentionally deferred; MVP stays provider-neutral so Claude, OpenAI, and Ollama adapters can be added later without protocol changes.
+- Provider detail sources are split by channel: Claude material is available through the local/code-indexed knowledge base, OpenAI material should be gathered on demand from the web/official docs path, and Ollama remains the last adapter phase. Agents should ask the user before relying on provider-specific details.
+- The current OpenAI adapter direction is `Responses API` as the primary backend surface, using `Conversations API` or `previous_response_id` for state; `Agents SDK` stays a later fallback if higher-level orchestration is needed.
 
 ## Current Focus
-- Start implementation from a protocol-first backend roadmap.
+- Execute Spec `002`, which adds chain write flows on top of the accepted backend skeleton and `u-db` adapter boundary.
+- Use the always-on server environment as the default UI/integration test surface once the backend can replace the current stubbed `chain-api` path cleanly.
+- Keep LLM/provider bridges out of MVP while preserving one protocol for major agent families and a later provider order of Claude, then OpenAI, then Ollama last.
+- When OpenAI integration starts, design around `Responses` event streams and tool items first, not around SDK-specific session abstractions.
 - Keep agent startup deterministic through `./agent/docs/index.md`.
 - Preserve only shipped or explicitly accepted contracts in context files.
 
 ## Main Risks
 - Letting UI contract, protocol rules, and storage assumptions drift apart.
-- Expanding scope before the first spec is accepted.
+- Letting Spec `002` bypass or distort the accepted `u-db` adapter boundary.
+- Forgetting that the always-on `u-msg-ui` launcher currently occupies host ports `8000`, `8001`, and `5173`, which affects live backend validation through `chain-api.u-msg.local`.
+- Letting provider-specific assumptions leak into MVP before the core protocol is accepted.
+- Expanding scope before the write-path contract is stable.

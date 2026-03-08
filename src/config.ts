@@ -1,0 +1,22 @@
+export interface Config {
+  port: number;
+  host: string;
+  /** Override paths for u-db commands. Empty string means resolve from PATH. */
+  udb: {
+    write: string;
+    read: string;
+    update: string;
+  };
+}
+
+export function loadConfig(): Config {
+  return {
+    port: parseInt(process.env.UMSG_PORT ?? "8000", 10),
+    host: process.env.UMSG_HOST ?? "0.0.0.0",
+    udb: {
+      write: process.env.UDB_WRITE_CMD ?? "u-db-write",
+      read: process.env.UDB_READ_CMD ?? "u-db-read",
+      update: process.env.UDB_UPDATE_CMD ?? "u-db-update",
+    },
+  };
+}

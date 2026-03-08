@@ -1,0 +1,25 @@
+{
+  "name": "u-msg",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preflight": "bash /Users/glebnikitin/work/code/u-db/agent/scripts/init-hub-db.sh && bash /Users/glebnikitin/work/code/u-db/agent/scripts/smoke-hub-mvp.sh"
+  },
+  "dependencies": {
+    "fastify": "^5.3.3",
+    "@fastify/websocket": "^11.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "tsx": "^4.19.0",
+    "vitest": "^3.1.0",
+    "@types/node": "^22.0.0"
+  }
+}
