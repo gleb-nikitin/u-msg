@@ -15,7 +15,7 @@
 
 ## Session Handoff
 - date: 2026-03-08
-- what changed: replaced stale startup references with a canonical docs index and split the donor material into product, protocol, integration, and roadmap files with conflict resolution.
-- why: the previous context set pointed to missing files and mixed aspirational roadmap text with newer normative and shipped behavior.
+- what changed: established a canonical docs index and split project context into product, protocol, integration, and roadmap files.
+- why: agents need one compact, conflict-free startup path with one source of truth per topic.
 - risks: roadmap sequencing is ready to start, but no spec has been accepted yet and sessions/search still need explicit decomposition.
 - next checks: create spec `001` for backend skeleton plus storage adapter boundaries, then validate each API path against the frozen `u-db` flow and UI contract.

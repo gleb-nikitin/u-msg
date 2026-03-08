@@ -12,15 +12,8 @@ Use this file as the startup entrypoint for no-history agents.
 7. `./agent/docs/kb.md` — handoff notes and lightweight debt tracking.
 
 ## Canonical Rules
-- Prefer newer donor documents over older roadmap prose when they conflict.
 - Treat `producer_key` as the idempotency key; `msg_id`, `chain_id`, and `seq` are service-owned.
 - Treat shipped `u-db` behavior as the storage truth for MVP planning.
 - Keep UI contract facts in `integration.md`, not in protocol files.
 - Keep only one canonical home per topic; add links instead of repeating content.
-
-## Source Set
-- `/Users/glebnikitin/disk/u-msg/inbox/context-injection.md`
-- `/Users/glebnikitin/disk/u-msg/inbox/agent-hub-protocol-addendum.md`
-- `/Users/glebnikitin/disk/u-msg/inbox/agent-hub-roadmap-final.md`
-- `/Users/glebnikitin/disk/u-msg/inbox/u-db-ready.md`
-- `/Users/glebnikitin/disk/u-msg/inbox/u-msg-ui-contract.md`
+- Treat `./agent/docs/` as the only startup context for this project.

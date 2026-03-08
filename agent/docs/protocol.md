@@ -41,11 +41,19 @@
 
 ## Validation
 - Required base fields: `producer_key`, `from_id`, `notify`, `type`, `content`.
-- `producer_key`: 1-256 chars, no whitespace.
-- `from_id` and participant ids: 1-128 chars.
-- `content`: 1-100000 chars.
-- `summary`: 1-300 chars when supplied.
-- `meta`: valid JSON, max 10000 chars.
+- Hard protocol rules:
+  - `producer_key` must be non-empty and contain no whitespace.
+  - `from_id` and participant ids must be non-empty.
+  - `notify` must be a non-empty list.
+  - `content` must be non-empty.
+  - `meta` must be valid JSON when supplied.
+- Initial implementation defaults, not fixed protocol constraints:
+  - `producer_key`: target up to 256 chars.
+  - `from_id` and participant ids: target up to 128 chars.
+  - `content`: target up to 100000 chars.
+  - `summary`: target up to 300 chars when supplied.
+  - `meta`: target up to 10000 chars serialized.
+- Adjust numeric limits during implementation hardening based on real usage data.
 
 ## Exit Codes
 | Code | Meaning |

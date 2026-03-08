@@ -19,4 +19,4 @@
 ## Decisions
 <!-- Log direction-changing decisions. Format: date | decision | rationale -->
 - 2026-03-06 | External solution scope includes `u-db` and `u-msg-ui` as reusable components | Avoid re-implementing solved DB/UI layers inside `u-msg`.
-- 2026-03-08 | Canonical startup context moved to `agent/docs/index.md` and donor facts were split by topic | Remove stale roadmap references and keep one source of truth per topic.
+- 2026-03-08 | Canonical startup context moved to `agent/docs/index.md` and project context was split by topic | Keep one source of truth per topic and make no-history startup deterministic.

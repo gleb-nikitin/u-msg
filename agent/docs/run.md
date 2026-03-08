@@ -16,9 +16,10 @@
   - `./agent/docs/protocol.md`
   - `./agent/docs/integration.md`
   - `./agent/docs/roadmap.md`
-- Validate backend assumptions against:
-  - `/Users/glebnikitin/disk/u-msg/inbox/u-db-ready.md`
-  - `/Users/glebnikitin/disk/u-msg/inbox/u-msg-ui-contract.md`
+- Validate backend work against:
+  - `./agent/docs/protocol.md`
+  - `./agent/docs/integration.md`
+  - `./agent/docs/roadmap.md`
 
 ## Current State
 - Context preparation is complete enough to begin spec `001`.

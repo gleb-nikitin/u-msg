@@ -7,3 +7,4 @@
 2026-03-06 22:08 | policy | cold-start context cleanup | Repointed docs/roadmap references from removed global docs to near-intents.md + steps.md for deterministic agent startup.
 2026-03-08 10:58 | milestone | rebuilt context set from inbox donors | Added agent/docs/index.md and split canonical facts into product, protocol, integration, and roadmap docs; removed stale startup references.
 2026-03-08 11:06 | policy | corrected repository identity and established clean baseline for spec execution | Replace mistaken u-mail remote with u-msg, add local artifact ignore, and publish current context as the starting mainline.
+2026-03-08 11:12 | milestone | checkpointed roadmap and protocol context updates | Captured current doc and state refinements as a clean local safepoint before spec execution continues.
