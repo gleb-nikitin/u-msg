@@ -36,6 +36,7 @@
 | `UDB_WRITE_CMD` | `u-db-write` | Override u-db-write command path |
 | `UDB_READ_CMD` | `u-db-read` | Override u-db-read command path |
 | `UDB_UPDATE_CMD` | `u-db-update` | Override u-db-update command path |
+| `UMSG_UDB_TABLE_PREFIX` | `msg` | Prefix for storage tables (`${prefix}-mail`, `${prefix}-mail_read_cursor`) |
 
 ## Stack (locked by spec 001)
 - Runtime: Node.js + TypeScript (ESM)

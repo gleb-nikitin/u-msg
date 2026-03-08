@@ -6,6 +6,7 @@ export interface Config {
     write: string;
     read: string;
     update: string;
+    tablePrefix: string;
   };
 }
 
@@ -17,6 +18,7 @@ export function loadConfig(): Config {
       write: process.env.UDB_WRITE_CMD ?? "u-db-write",
       read: process.env.UDB_READ_CMD ?? "u-db-read",
       update: process.env.UDB_UPDATE_CMD ?? "u-db-update",
+      tablePrefix: process.env.UMSG_UDB_TABLE_PREFIX ?? "msg",
     },
   };
 }

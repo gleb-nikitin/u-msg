@@ -21,8 +21,8 @@ export interface StoredMessage {
 
 /** Payload for creating a new chain. */
 export interface NewChainRequest {
-  producer_key: string;
-  from_id: string;
+  producer_key?: string;
+  from_id?: string;
   notify: string[];
   response_from?: string | null;
   type: MessageType;
@@ -61,6 +61,10 @@ export interface MarkReadRequest {
 /** Inbox entry for a chain with unread info. */
 export interface InboxEntry {
   chain_id: string;
+  participants: string[];
+  response_from: string | null;
+  last_summary: string;
+  last_ts: string;
   latest_ts: string;
   latest_summary: string;
   latest_from_id: string;

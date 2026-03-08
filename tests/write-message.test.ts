@@ -248,7 +248,7 @@ describe("write-message flows", () => {
 
   // --- AC 6: Validation and chain error mapping ---
   describe("validation errors", () => {
-    it("rejects missing producer_key", async () => {
+    it("accepts omitted producer_key by generating one server-side", async () => {
       const { producer_key: _, ...noKey } = VALID_BODY;
       const res = await app.inject({
         method: "POST",
@@ -256,8 +256,31 @@ describe("write-message flows", () => {
         headers: HEADERS,
         payload: noKey,
       });
+      expect(res.statusCode).toBe(201);
+    });
+
+    it("accepts omitted from_id by defaulting to X-Participant-Id", async () => {
+      const { from_id: _, ...noFrom } = VALID_BODY;
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/chains",
+        headers: HEADERS,
+        payload: { ...noFrom, producer_key: "no-from-1" },
+      });
+      expect(res.statusCode).toBe(201);
+      const call = lastCall();
+      expect(colVal(call, "from_id")).toBe("alice");
+    });
+
+    it("rejects when from_id differs from X-Participant-Id", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/chains",
+        headers: HEADERS,
+        payload: { ...VALID_BODY, producer_key: "from-mismatch-1", from_id: "mallory" },
+      });
       expect(res.statusCode).toBe(400);
-      expect(res.json().code).toBe("VALIDATION_ERROR");
+      expect(res.json().code).toBe("BAD_REQUEST");
     });
 
     it("rejects producer_key with whitespace", async () => {
@@ -280,6 +303,21 @@ describe("write-message flows", () => {
       });
       expect(res.statusCode).toBe(400);
       expect(res.json().code).toBe("VALIDATION_ERROR");
+    });
+
+    it("accepts empty notify when response_from is present", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/chains",
+        headers: HEADERS,
+        payload: {
+          ...VALID_BODY,
+          producer_key: "val-rf-only",
+          notify: [],
+          response_from: "bob",
+        },
+      });
+      expect(res.statusCode).toBe(201);
     });
 
     it("rejects invalid type", async () => {
@@ -358,6 +396,19 @@ describe("write-message flows", () => {
       });
       expect(res.statusCode).toBe(404);
       expect(res.json().code).toBe("CHAIN_ERROR");
+    });
+  });
+
+  describe("append sender validation", () => {
+    it("rejects append when from_id differs from X-Participant-Id", async () => {
+      const res = await app.inject({
+        method: "POST",
+        url: "/api/chains/existing-chain/messages",
+        headers: HEADERS,
+        payload: { ...VALID_BODY, producer_key: "from-mismatch-2", from_id: "mallory" },
+      });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().code).toBe("BAD_REQUEST");
     });
   });
 
@@ -494,6 +545,32 @@ describe("validateMessage", () => {
   it("throws on missing required fields", async () => {
     const { validateMessage } = await import("../src/lib/validate-message.js");
     expect(() => validateMessage({})).toThrow();
-    expect(() => validateMessage({ producer_key: "a" })).toThrow();
+    expect(() => validateMessage({ producer_key: "a", notify: ["b"], type: "chat", content: "c" })).toThrow();
+  });
+
+  it("applies defaults for from_id and producer_key", async () => {
+    const { validateMessage } = await import("../src/lib/validate-message.js");
+    const result = validateMessage(
+      { notify: ["bob"], type: "chat", content: "Hi" },
+      { from_id: "alice", producer_key: "auto-1" },
+    );
+    expect(result.from_id).toBe("alice");
+    expect(result.producer_key).toBe("auto-1");
+  });
+
+  it("allows empty notify when response_from is present", async () => {
+    const { validateMessage } = await import("../src/lib/validate-message.js");
+    const result = validateMessage(
+      {
+        producer_key: "pk-rf-only",
+        from_id: "alice",
+        notify: [],
+        response_from: "bob",
+        type: "chat",
+        content: "Hi",
+      },
+    );
+    expect(result.notify).toEqual([]);
+    expect(result.response_from).toBe("bob");
   });
 });

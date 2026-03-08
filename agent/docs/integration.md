@@ -15,6 +15,7 @@
 - MVP backend calls `u-db-*` per request and does not own a long-running drain or queue-management process.
 - Parse `u-db` stdout strictly; unexpected output format is an adapter failure, not a reason to infer best-effort results.
 - MVP unread aggregation is intentionally brute-force and application-side; do not add caching or invalidation logic unless a later spec requires it.
+- Backend table targets are prefix-configurable via `UMSG_UDB_TABLE_PREFIX` (default `msg`), resulting in `${prefix}-mail` and `${prefix}-mail_read_cursor`.
 
 ## Frozen External References
 - Storage bootstrap: `/Users/glebnikitin/work/code/u-db/agent/scripts/init-hub-db.sh`
@@ -35,10 +36,13 @@
 
 ## Request/Response Notes
 - All write calls send `X-Participant-Id` and the JSON message body defined by the protocol.
+- `POST /api/chains` and `POST /api/chains/{chain_id}/messages` allow omitted `producer_key` and `from_id`; backend defaults `from_id` from `X-Participant-Id` and generates `producer_key` when absent.
+- Recipient semantics are strict: at least one effective recipient must exist; `notify` may be empty only when `response_from` is provided.
 - Write responses are JSON: `{ "msg_id": "string", "chain_id": "string", "seq": 0 }`.
 - Read request body: `{ "participant": "string", "through": number | undefined }`.
 - Preferred read response: `204 No Content`.
 - UI requires `summary` on every message and exact enum values for `type`.
+- `GET /api/chains` returns UI fields `participants`, `response_from`, `last_summary`, `last_ts` and keeps compatibility fields `latest_summary`, `latest_ts`, `latest_from_id`.
 
 ## Realtime
 - Required WebSocket event: `{ "type": "new_message", "chain_id": "...", "seq": 0, "summary": "...", "from_id": "..." }`
@@ -51,6 +55,7 @@
 - `ui-api.u-msg.local` proxies to frontend-owned UI-state API `:8001`.
 - `ui.u-msg.local` proxies to Vite dev server `:5173`.
 - Backend swaps from stub to real service through nginx proxy changes, with no UI contract changes.
+- Operational reality: the always-on `u-msg-ui` stack currently occupies host `:8000`, so local backend dev/validation must override `UMSG_PORT` (for example `18080`) unless/nginx routing is intentionally switched.
 
 ## Always-On Server Workspace
 - Shared ingress/workspace lives at `/Users/glebnikitin/work/server`.

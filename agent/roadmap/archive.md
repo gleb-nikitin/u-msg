@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 006-msg-db-connection-and-ui-contract-alignment
+- accepted: 2026-03-08
+- outcome: backend storage targeting now uses a configurable table prefix (default `msg`), `GET /api/chains` exposes UI-required fields (`participants`, `response_from`, `last_summary`, `last_ts`) while preserving legacy compatibility fields, and write endpoints now support UI-style omitted `from_id`/`producer_key` through server-side defaults without changing protocol idempotency semantics.
+- verification: `npm run typecheck`, `npm test` (84/84), `UMSG_CHECK_URL=http://127.0.0.1:18080 ./agent/scripts/check-mvp.sh` (10 passed, 0 failed)
+- residuals: search/sessions remain the temporary Spec `005` contract (`status: "not_wired"`); permanent models still require a separate follow-up spec.
+
 ## 005-search-session-surfaces-and-ops
 - accepted: 2026-03-08
 - outcome: search and sessions endpoints now return deterministic temporary `status: "not_wired"` responses, the MVP check script validates HTTP + WS contract surfaces, and the KB documents real search/session follow-up and port-conflict operational constraints.

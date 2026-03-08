@@ -3,7 +3,7 @@
 ## Current Status
 - Active spec: `none`
 - Next spec: `none`
-- Specs `001` through `005` are accepted; MVP backend scope is complete.
+- Specs `001` through `006` are accepted.
 
 ## Build Sequence
 1. Spec `001`: backend skeleton and storage adapter boundaries.
@@ -11,23 +11,25 @@
 3. Spec `003`: chain reads, unread aggregation, and mark-read cursor handling.
 4. Spec `004`: WebSocket `new_message` delivery and API/UI wiring.
 5. Spec `005`: search/session contract surfaces and operational validation without provider adapters.
-6. Post-MVP: provider bridge adapters in this order: Claude first, OpenAI next, local Ollama-compatible runtimes last.
-   - OpenAI default path: `Responses API` plus `Conversations API` or `previous_response_id`.
-   - OpenAI fallback path: `Agents SDK` only if later work needs OpenAI-native handoffs or higher-level orchestration.
+6. Spec `006`: DB-prefix connection (`msg`) and UI contract mismatch alignment for real backend switch.
+7. Ongoing post-MVP in this repo: protocol hardening, contract compatibility, and integration-support assets for external adapter projects.
 
-## Immediate Requirements
+## Standing Rules
 - Keep the backend thin and route all durable storage through shipped `u-db` commands.
 - Match the UI contract exactly; avoid translation layers.
 - Use the protocol contract as normative input for all request validation and stored message shape.
-- Treat application-side unread aggregation as required MVP work, not a future enhancement.
 - Keep stored message shape and backend contracts provider-neutral so future adapters do not require protocol changes.
+- Start all post-MVP execution from an accepted spec.
+- LLM/provider adapter implementation is out of scope in this repository roadmap.
 
 ## Open Constraints
-- No session registry implementation is defined locally yet.
-- Search exists only as a contract surface; the implementation path still needs explicit decomposition.
+- No permanent session registry implementation is defined locally yet (see `agent/docs/kb.md`, section `Search/Session Follow-Up`).
+- Search still uses the temporary Spec `005` contract surface; permanent implementation decomposition is tracked in `agent/docs/kb.md`, section `Search/Session Follow-Up`.
 - Partial WebSocket streaming remains out of MVP scope unless a later spec explicitly adds it.
-- Provider-specific integration details are intentionally deferred; when that work starts, ask the user for the relevant source path, then use the code-indexed Claude KB first, gather OpenAI details from the web/official docs path when needed, and keep Ollama for the final adapter phase.
-- For OpenAI specifically, prefer the lower-level provider-neutral adapter shape around `Responses` streaming, tool calls, and conversation state before considering `Agents SDK`.
+- Provider-specific integrations are handled outside this repository; this repo supports them via stable protocol contracts, examples, and compatibility checks only.
+
+## Future Ideas
+- UI follow-up ideas backlog (do not load by default): `/Users/glebnikitin/work/code/u-msg/agent/inbox/ideas-from-ui.md`
 
 ## MVP Acceptance
 - Start a new chain and receive `{msg_id, chain_id, seq}`.
@@ -38,4 +40,4 @@
 - Mark a chain read through a cursor update or initial cursor write.
 - Auto-generate `summary` when omitted.
 - Reject malformed writes with the correct error code class.
-- Do not require a Claude, OpenAI, or Ollama adapter to satisfy MVP acceptance.
+- Do not require any LLM/provider adapter to satisfy MVP acceptance.

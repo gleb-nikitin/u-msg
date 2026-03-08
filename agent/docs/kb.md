@@ -11,10 +11,12 @@
 - `./agent/how-to/how-to-open-ai.md` — lazy-load note for the future OpenAI adapter direction, tradeoffs, and cited source paths.
 
 ## Known Debt
-- Specs `001` through `005` are complete.
-- Provider adapter work for Claude, OpenAI, and Ollama is intentionally deferred and still needs a later spec, with Ollama explicitly last.
-- OpenAI adapter decomposition is still pending, but the current default is `Responses API`; `Agents SDK` is only a fallback if later requirements need OpenAI-native orchestration.
+- Specs `001` through `006` are complete.
+- LLM/provider adapter implementation is out of scope for this repository roadmap; those adapters should live in separate projects that consume the `u-msg` protocol.
+- This repo should provide protocol compatibility guidance and integration-support artifacts for external adapter teams.
 - `check-mvp.sh` requires explicit `UMSG_CHECK_URL` because the always-on stub occupies `:8000`. Dev server and live validation must use a different port (e.g. `UMSG_PORT=18080`).
+- UI mismatch source for Spec `006`: `agent/inbox/2026-03-08-ui-contract-mismatches.md`.
+- Spec `006` implementation notes: adapter table targets are now prefix-driven (`UMSG_UDB_TABLE_PREFIX`, default `msg`), `/api/chains` now includes UI fields (`participants`, `response_from`, `last_summary`, `last_ts`) alongside legacy fields, and write endpoints default missing `from_id`/`producer_key` server-side.
 
 ## Search/Session Follow-Up
 - Both `GET /api/search` and `GET /api/sessions` currently return `status: "not_wired"` with empty result arrays. This is the Spec `005` temporary surface.
@@ -31,7 +33,7 @@
 
 ## Session Handoff
 - date: 2026-03-08
-- what changed: accepted Spec `005`, archived it, and closed MVP backend execution scope after verifying deterministic temporary `search`/`sessions` surfaces and the explicit `UMSG_CHECK_URL` operational check path.
-- why: the remaining MVP contract surfaces are now implemented and documented with stable temporary behavior, and the full endpoint/WS check script passed against an explicit non-`8000` local server URL.
-- risks: `search` and `sessions` are intentionally temporary (`status: "not_wired"`); replacing them without an accepted post-MVP spec could create model drift. Always-on `u-msg-ui` still occupies host ports `8000`, `8001`, and `5173`.
-- next checks: no auditor launch needed now; create the next post-MVP spec (provider-adapter planning/implementation), then summon executor(s) against that new spec.
+- what changed: accepted Spec `006`, added archive/state closure, and shipped DB-prefix + UI contract alignment in backend behavior and tests.
+- why: unblocks switching `u-msg-ui` from stub to real backend by removing hardcoded `hub-*` table targets and matching UI-required chain/write contract expectations.
+- risks: changing compatibility fields/defaults can still regress external consumers if future edits remove legacy fields or header-derived defaults without a transition spec; always-on `u-msg-ui` still occupies host ports `8000`, `8001`, and `5173`.
+- next checks: run live `u-msg-ui` smoke against this backend path, then define the next post-MVP protocol-support spec (keep provider adapters out of repo scope).

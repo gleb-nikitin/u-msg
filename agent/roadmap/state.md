@@ -1,9 +1,10 @@
 # Roadmap State
 
 - active_spec: none
-- last_finished: 005
+- last_finished: 006
 - next_spec: none
 - queue: []
-- status_note: Specs 001-005 are accepted and MVP backend surface is complete. No active execution spec; next work should start from a new post-MVP spec (likely provider-adapter planning/implementation) while preserving protocol-first boundaries.
+- next_direction: No active execution spec. Start from a new accepted post-MVP spec for protocol hardening, compatibility support, or integration-support assets.
+- status_note: Specs 001-006 are accepted. Repository scope remains protocol-only; in-repo LLM/provider adapter implementation stays out of scope.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md`, then choose protocol by user request; if execution resumes, create/activate the next post-MVP spec before coding.
+- context_note: load `./agent/docs/index.md`, select user-requested protocol, and create/activate the next spec before new implementation work.

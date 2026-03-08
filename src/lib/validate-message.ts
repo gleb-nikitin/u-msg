@@ -1,5 +1,6 @@
 import type { MessageType } from "./protocol-types.js";
 import { HttpError } from "./http-errors.js";
+import { randomUUID } from "node:crypto";
 
 const VALID_TYPES: ReadonlySet<string> = new Set(["chat", "event", "status", "error"]);
 
@@ -29,39 +30,48 @@ export interface ValidatedMessage {
   meta: unknown | null;
 }
 
+export interface ValidationDefaults {
+  from_id: string;
+  producer_key?: string;
+}
+
 function validationError(message: string): HttpError {
   return new HttpError(400, "VALIDATION_ERROR", message);
 }
 
-export function validateMessage(body: unknown): ValidatedMessage {
+export function defaultProducerKey(): string {
+  return `pk_${randomUUID()}`;
+}
+
+export function validateMessage(body: unknown, defaults?: ValidationDefaults): ValidatedMessage {
   if (!body || typeof body !== "object") {
     throw validationError("Request body must be a JSON object");
   }
 
   const input = body as RawInput;
 
-  // producer_key: required, non-empty, no whitespace
-  if (typeof input.producer_key !== "string" || input.producer_key.length === 0) {
+  const producerKey = input.producer_key ?? defaults?.producer_key;
+  if (typeof producerKey !== "string" || producerKey.length === 0) {
     throw validationError("producer_key is required and must be a non-empty string");
   }
-  if (/\s/.test(input.producer_key)) {
+  if (/\s/.test(producerKey)) {
     throw validationError("producer_key must not contain whitespace");
   }
-  if (input.producer_key.length > 256) {
+  if (producerKey.length > 256) {
     throw validationError("producer_key exceeds 256 character limit");
   }
 
-  // from_id: required, non-empty
-  if (typeof input.from_id !== "string" || input.from_id.length === 0) {
+  const fromId = input.from_id ?? defaults?.from_id;
+  if (typeof fromId !== "string" || fromId.length === 0) {
     throw validationError("from_id is required and must be a non-empty string");
   }
-  if (input.from_id.length > 128) {
+  if (fromId.length > 128) {
     throw validationError("from_id exceeds 128 character limit");
   }
 
-  // notify: required non-empty array of non-empty strings
-  if (!Array.isArray(input.notify) || input.notify.length === 0) {
-    throw validationError("notify is required and must be a non-empty array");
+  // notify: required array of non-empty strings, may be empty if response_from is present
+  if (!Array.isArray(input.notify)) {
+    throw validationError("notify is required and must be an array");
   }
   for (const n of input.notify) {
     if (typeof n !== "string" || n.length === 0) {
@@ -111,6 +121,9 @@ export function validateMessage(body: unknown): ValidatedMessage {
     }
     response_from = input.response_from;
   }
+  if (input.notify.length === 0 && response_from === null) {
+    throw validationError("at least one recipient is required: notify or response_from");
+  }
 
   // external_ref: optional
   let external_ref: string | null = null;
@@ -157,8 +170,8 @@ export function validateMessage(body: unknown): ValidatedMessage {
   }
 
   return {
-    producer_key: input.producer_key,
-    from_id: input.from_id,
+    producer_key: producerKey,
+    from_id: fromId,
     notify: input.notify as string[],
     response_from,
     type,

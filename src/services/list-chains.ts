@@ -48,9 +48,19 @@ export async function listChains(
     msgs.sort((a, b) => a.seq - b.seq);
     const latest = msgs[msgs.length - 1]!;
     const readThrough = cMap.get(chainId) ?? 0;
+    const participants = new Set<string>();
+    for (const msg of msgs) {
+      participants.add(msg.from_id);
+      for (const n of msg.notify) participants.add(n);
+      if (msg.response_from) participants.add(msg.response_from);
+    }
 
     entries.push({
       chain_id: chainId,
+      participants: [...participants],
+      response_from: latest.response_from,
+      last_summary: latest.summary,
+      last_ts: latest.ts,
       latest_ts: latest.ts,
       latest_summary: latest.summary,
       latest_from_id: latest.from_id,

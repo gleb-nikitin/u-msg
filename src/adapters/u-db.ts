@@ -10,7 +10,7 @@ const execFileAsync = promisify(execFile);
 const EXIT_QUEUE_FAILURE = 3;
 const EXIT_CHAIN_ERROR = 4;
 
-/** Column order returned by u-db-read hub-mail. */
+/** Column order returned by u-db-read mail table. */
 const MAIL_COLUMNS = [
   "ts", "producer_key", "msg_id", "chain_id", "seq", "from_id",
   "notify", "response_from", "type", "event_type", "external_ref",
@@ -32,26 +32,30 @@ export class UDbAdapter {
   private readonly writeCmd: string;
   private readonly readCmd: string;
   private readonly updateCmd: string;
+  private readonly mailTable: string;
+  private readonly cursorTable: string;
 
   constructor(config: Config) {
     this.writeCmd = config.udb.write;
     this.readCmd = config.udb.read;
     this.updateCmd = config.udb.update;
+    this.mailTable = `${config.udb.tablePrefix}-mail`;
+    this.cursorTable = `${config.udb.tablePrefix}-mail_read_cursor`;
   }
 
-  /** Write a message to hub-mail. */
+  /** Write a message to the configured mail table. */
   async writeMail(cols: string[], vals: unknown[]): Promise<WriteResult> {
     const { stdout } = await this.exec(this.writeCmd, [
-      "hub-mail",
+      this.mailTable,
       "--cols", cols.join(","),
       "--vals", JSON.stringify(vals),
     ]);
     return this.parseWriteResult(stdout);
   }
 
-  /** Read messages from hub-mail. */
+  /** Read messages from the configured mail table. */
   async readMail(where: string, order: string, limit?: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--where", where, "--order", order];
+    const args = [this.mailTable, "--where", where, "--order", order];
     if (limit !== undefined) args.push("--limit", String(limit));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
@@ -59,7 +63,7 @@ export class UDbAdapter {
 
   /** Read all recent mail (no where clause). */
   async readRecentMail(order: string, limit?: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--order", order];
+    const args = [this.mailTable, "--order", order];
     if (limit !== undefined) args.push("--limit", String(limit));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
@@ -71,9 +75,9 @@ export class UDbAdapter {
     return rows.length > 0 ? rows[0]!.seq : 0;
   }
 
-  /** Read cursors from hub-mail_read_cursor. */
+  /** Read cursors from the configured read cursor table. */
   async readCursors(where?: string, limit?: number): Promise<ReadCursor[]> {
-    const args = ["hub-mail_read_cursor"];
+    const args = [this.cursorTable];
     if (where) args.push("--where", where);
     args.push("--limit", String(limit ?? 10000));
     const { stdout } = await this.exec(this.readCmd, args);
@@ -83,7 +87,7 @@ export class UDbAdapter {
   /** Write a new cursor row. */
   async writeCursor(chainId: string, participantId: string, seq: number): Promise<void> {
     await this.exec(this.writeCmd, [
-      "hub-mail_read_cursor",
+      this.cursorTable,
       "--cols", "chain_id,participant_id,read_through_seq",
       "--vals", JSON.stringify([chainId, participantId, seq]),
     ]);
@@ -92,7 +96,7 @@ export class UDbAdapter {
   /** Update an existing cursor row. */
   async updateCursor(chainId: string, participantId: string, seq: number): Promise<void> {
     await this.exec(this.updateCmd, [
-      "hub-mail_read_cursor",
+      this.cursorTable,
       "--cols", "read_through_seq",
       "--vals", JSON.stringify([seq]),
       "--where", `chain_id='${chainId}' AND participant_id='${participantId}'`,

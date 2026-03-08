@@ -16,21 +16,19 @@
 - Spec `004` is complete: realtime `new_message` fan-out is wired through an in-process publisher, WebSocket subscriptions are participant-scoped and normalized, and duplicate notify deliveries are deduplicated before publish.
 - Spec `005` is complete: temporary deterministic search/session responses are now explicit, MVP operational checks are scripted, and unresolved permanent search/session model decisions are centralized in KB follow-up notes.
 - The shared always-on ingress workspace at `/Users/glebnikitin/work/server` is available for integration testing, and `u-msg-ui` is already running there behind nginx/launchd.
-- Provider integrations are intentionally deferred; MVP stays provider-neutral so Claude, OpenAI, and Ollama adapters can be added later without protocol changes.
-- Provider detail sources are split by channel: Claude material is available through the local/code-indexed knowledge base, OpenAI material should be gathered on demand from the web/official docs path, and Ollama remains the last adapter phase. Agents should ask the user before relying on provider-specific details.
-- The current OpenAI adapter direction is `Responses API` as the primary backend surface, using `Conversations API` or `previous_response_id` for state; `Agents SDK` stays a later fallback if higher-level orchestration is needed.
+- LLM/provider adapter implementation is now out of scope for this repository roadmap. `u-msg` is protocol-first and provider-neutral, and external projects should integrate against its contracts.
 
 ## Current Focus
-- MVP backend execution scope is complete (Specs `001` through `005`); keep protocol/provider boundaries stable and prepare the next post-MVP spec before new implementation work.
+- Spec `006` is accepted; keep post-MVP execution protocol-first and create/activate a new spec before further implementation.
 - Use the always-on server environment as the default UI/integration test surface once the backend can replace the current stubbed `chain-api` path cleanly.
-- Keep LLM/provider bridges out of MVP while preserving one protocol for major agent families and a later provider order of Claude, then OpenAI, then Ollama last.
-- When OpenAI integration starts, design around `Responses` event streams and tool items first, not around SDK-specific session abstractions.
+- Accept protocol-only requests and help external teams integrate the protocol without adding in-repo provider adapter code.
 - Keep agent startup deterministic through `./agent/docs/index.md`.
 - Preserve only shipped or explicitly accepted contracts in context files.
 
 ## Main Risks
 - Letting UI contract, protocol rules, and storage assumptions drift apart.
-- Starting provider or session-model work without a new accepted post-MVP spec can blur protocol/provider boundaries.
+- Re-introducing in-repo provider adapter scope would blur boundaries and create ownership drift.
+- Implementing UI compatibility by breaking accepted protocol behavior instead of layering backward-compatible response/default logic.
 - Forgetting that the always-on `u-msg-ui` launcher currently occupies host ports `8000`, `8001`, and `5173`, which affects live backend validation through `chain-api.u-msg.local`.
-- Letting provider-specific assumptions leak into MVP before the core protocol is accepted.
+- Letting provider-specific assumptions leak into protocol contracts.
 - Expanding scope without preserving the now-explicit temporary `search`/`sessions` contract until a replacement model is accepted.
