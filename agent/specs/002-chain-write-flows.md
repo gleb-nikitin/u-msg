@@ -29,12 +29,14 @@ Implement durable chain creation and append flows that enforce the canonical pro
 ## Behavior
 1. Validate base protocol fields exactly as documented for `producer_key`, `from_id`, `notify`, `type`, `content`, and optional `meta`.
 2. Enforce type-specific rules such as `event_type` being required for `type=event`.
-3. Generate `summary` with the documented v0 fallback when callers omit it.
-4. Call the `u-db` write path for both new-chain and append flows and parse `ok|dup\tmsg_id\tchain_id\tseq`.
-5. Map duplicate writes to successful JSON responses with no extra side effects.
-6. Map validation failures, queue failures, and unknown `chain_id` failures to stable HTTP error classes derived from the protocol exit-code rules.
-7. Treat `u-db` exit code `3` as a retriable backend failure and return a retriable HTTP error such as `503`.
-8. Keep provider-specific metadata out of top-level message fields; only canonical protocol fields are stored or returned here.
+3. Treat malformed JSON request bodies as validation-class failures rather than generic internal errors.
+4. Ensure `response_from` implies notification even when it is omitted from the incoming `notify` list.
+5. Generate `summary` with the documented v0 fallback when callers omit it.
+6. Call the `u-db` write path for both new-chain and append flows and parse `ok|dup\tmsg_id\tchain_id\tseq`.
+7. Map duplicate writes to successful JSON responses with no extra side effects.
+8. Map validation failures, queue failures, and unknown `chain_id` failures to stable HTTP error classes derived from the protocol exit-code rules.
+9. Treat `u-db` exit code `3` as a retriable backend failure and return a retriable HTTP error such as `503`.
+10. Keep provider-specific metadata out of top-level message fields; only canonical protocol fields are stored or returned here.
 
 ## Constraints
 - Do not implement read-state, inbox aggregation, or WebSocket broadcast in this spec.
@@ -42,12 +44,13 @@ Implement durable chain creation and append flows that enforce the canonical pro
 - Do not bypass the shared `u-db` adapter.
 
 ## Acceptance Criteria
-- [ ] 1. New-chain writes return canonical `{msg_id, chain_id, seq}` JSON and persist through the `u-db` adapter.
-- [ ] 2. Append writes preserve monotonically increasing `seq` and return the same response shape.
-- [ ] 3. Duplicate retries with the same `producer_key` return success semantics with no additional side effects.
-- [ ] 4. Missing `summary` values are replaced with the documented v0 fallback before persistence.
-- [ ] 5. Queue failures from `u-db` return a retriable HTTP error instead of a generic `500` response.
-- [ ] 6. Malformed writes fail with stable validation/chain error mapping instead of generic `500` responses.
+- [x] 1. New-chain writes return canonical `{msg_id, chain_id, seq}` JSON and persist through the `u-db` adapter.
+- [x] 2. Append writes preserve monotonically increasing `seq` and return the same response shape.
+- [x] 3. Duplicate retries with the same `producer_key` return success semantics with no additional side effects.
+- [x] 4. Missing `summary` values are replaced with the documented v0 fallback before persistence.
+- [x] 5. `response_from` is persisted in a way that preserves the protocol rule that it implies notification.
+- [x] 6. Queue failures from `u-db` return a retriable HTTP error instead of a generic `500` response.
+- [x] 7. Malformed JSON and other malformed writes fail with stable validation/chain error mapping instead of generic `500` or `INTERNAL_ERROR` responses.
 
 ## Verification
 - `npm run typecheck`

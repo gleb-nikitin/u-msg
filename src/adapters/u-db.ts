@@ -2,11 +2,12 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import type { Config } from "../config.js";
 import type { StoredMessage, ReadCursor } from "../lib/protocol-types.js";
-import { adapterError } from "../lib/http-errors.js";
+import { adapterError, queueFailure, chainError } from "../lib/http-errors.js";
 
 const execFileAsync = promisify(execFile);
 
 /** u-db exit codes per protocol. */
+const EXIT_QUEUE_FAILURE = 3;
 const EXIT_CHAIN_ERROR = 4;
 
 /** Column order returned by u-db-read hub-mail. */
@@ -98,8 +99,11 @@ export class UDbAdapter {
     } catch (err: unknown) {
       const e = err as { code?: number; exitCode?: number; stderr?: string; message?: string };
       const exitCode = e.code ?? e.exitCode;
+      if (exitCode === EXIT_QUEUE_FAILURE) {
+        throw queueFailure("Storage queue failure — retry later");
+      }
       if (exitCode === EXIT_CHAIN_ERROR) {
-        throw adapterError("Unknown chain_id");
+        throw chainError("Unknown chain_id");
       }
       throw adapterError(`u-db command failed: ${e.stderr ?? e.message ?? "unknown error"}`);
     }

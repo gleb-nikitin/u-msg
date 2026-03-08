@@ -1,9 +1,9 @@
 # Roadmap State
 
-- active_spec: 002
-- last_finished: 001
-- next_spec: 003
-- queue: [004, 005]
-- status_note: Spec 001 is accepted; execute spec 002 next, keep the skeleton/adaptor boundary intact, ask the user targeted questions on real blockers, and stay sequential for now
+- active_spec: 003
+- last_finished: 002
+- next_spec: 004
+- queue: [005]
+- status_note: Specs 001-002 are accepted; execute spec 003 next, preserve the write-path and adapter boundary, and stay sequential for now. No auditor launch is needed at this boundary.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md`, then `./agent/specs/002-chain-write-flows.md` before execution
+- context_note: load `./agent/docs/index.md`, then `./agent/specs/003-chain-reads-and-read-state.md` before execution

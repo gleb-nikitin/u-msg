@@ -21,11 +21,19 @@ export async function buildApp(config: Config) {
   await app.register(websocket);
 
   // Error handler: structured JSON for all errors
-  app.setErrorHandler((error: Error & { statusCode?: number }, _req, reply) => {
+  app.setErrorHandler((error: Error & { statusCode?: number; validationContext?: string }, _req, reply) => {
     if (error instanceof HttpError) {
       return reply.status(error.statusCode).send(error.toJSON());
     }
+    // Fastify JSON parse errors and schema validation errors
     const statusCode = error.statusCode ?? 500;
+    if (statusCode === 400) {
+      return reply.status(400).send({
+        error: error.message,
+        code: "VALIDATION_ERROR",
+        statusCode: 400,
+      });
+    }
     return reply.status(statusCode).send({
       error: error.message,
       code: "INTERNAL_ERROR",

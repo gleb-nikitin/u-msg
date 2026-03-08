@@ -15,3 +15,7 @@
 2026-03-08 12:43 | policy | added executor completion reporting to specs 002-005 | Executors must report changed files, verification results, unresolved risks, and suggested context updates when finishing a spec.
 2026-03-08 12:52 | milestone | accepted spec 001 and advanced roadmap | Verified preflight, typecheck, tests, build, and live probes; archived spec 001 and activated spec 002.
 2026-03-08 12:52 | policy | recorded always-on server test surface | Shared `/work/server` ingress and running `u-msg-ui` are now part of the execution context; backend/UI tests must account for stub ownership of host port 8000.
+2026-03-08 13:06 | validation | spec 002 acceptance review blocked | Malformed JSON still maps to INTERNAL_ERROR and response_from->notify semantics are missing, so spec 002 remains active pending fixes.
+2026-03-08 13:12 | policy | auditor launch escalation is explicit | Tell the user whenever an auditor launch is needed during spec acceptance or execution.
+2026-03-08 13:14 | policy | executor handoff includes re-index | User will re-index the project with Code Indexer after each executor completion.
+2026-03-08 13:16 | milestone | accepted spec 002 and advanced roadmap | Verified rebuild, typecheck, tests, live create/duplicate/append probes, malformed JSON handling, and stored row shape; archived spec 002 and activated spec 003.

@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Current Status
-- Active spec: `002`
-- Next spec: `003`
-- Spec `001` is accepted; specs `002` through `005` remain queued for implementation.
+- Active spec: `003`
+- Next spec: `004`
+- Specs `001` and `002` are accepted; specs `003` through `005` remain queued for implementation.
 
 ## Build Sequence
 1. Spec `001`: backend skeleton and storage adapter boundaries.

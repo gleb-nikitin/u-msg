@@ -39,3 +39,11 @@ export function notFound(message: string): HttpError {
 export function adapterError(message: string): HttpError {
   return new HttpError(502, "ADAPTER_ERROR", message);
 }
+
+export function queueFailure(message: string): HttpError {
+  return new HttpError(503, "QUEUE_FAILURE", message);
+}
+
+export function chainError(message: string): HttpError {
+  return new HttpError(404, "CHAIN_ERROR", message);
+}
