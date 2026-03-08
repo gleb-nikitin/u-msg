@@ -1,13 +1,15 @@
 # Roadmap Intent
 
 ## Global Goals
-- Project: <project-name>
-- Purpose: <what success looks like for this project>
+- Project: `u-msg`
+- Purpose: chain-based messaging for humans, agents, and services with durable writes, predictable read state, and a thin backend over shared storage.
 
 ## Near-Term Priorities
-1. Define the first implementation spec.
-2. Replace bootstrap content in docs with project facts.
-3. Keep agent context lean and operational.
+1. Start protocol-first MVP execution from the canonical docs set rooted at `./agent/docs/index.md`.
+2. Reuse ready workspace solutions:
+   - `/Users/glebnikitin/work/code/u-db` for persistence and read/write integration.
+   - `/Users/glebnikitin/work/code/u-msg-ui` for UI flows and interaction patterns.
+3. Keep project docs and specs concise, canonical, and conflict-free for no-history execution.
 
 ## Direction Rules
 - Keep specs concise, implementation-oriented, and testable.
@@ -16,3 +18,5 @@
 
 ## Decisions
 <!-- Log direction-changing decisions. Format: date | decision | rationale -->
+- 2026-03-06 | External solution scope includes `u-db` and `u-msg-ui` as reusable components | Avoid re-implementing solved DB/UI layers inside `u-msg`.
+- 2026-03-08 | Canonical startup context moved to `agent/docs/index.md` and donor facts were split by topic | Remove stale roadmap references and keep one source of truth per topic.

@@ -20,17 +20,19 @@ Manual edits to AGENTS.md in this folder are prohibited.
 
 ## Code Search (MCP: code-indexer)
 - Use Code Indexer first: `list_projects()` -> `search_code(...)` -> `find_references/find_callers`.
-- Prefer `search_code` over Grep/Glob; use filesystem search only when MCP is unavailable.
+- Prefer `search_code` over Grep/Glob.
 - Default search settings: `mode="cascade"` and `compact=true` when supported.
 - Project name in index should match folder basename; use `list_projects()` for discovery.
 - Use `find_solutions(query)` before non-trivial debugging and `add_solution(problem, solution)` after resolution.
 - Endpoint: `http://127.0.0.1:8978/sse` (streamable HTTP, POST). Do not use `GET /sse`.
-- No auth headers for local setup.
-- If MCP config changed, restart MCP client.
-- If MCP is unavailable, print exact handshake error and fall back to filesystem search.
+- If MCP is unavailable, use Code Indexer CLI fallback:
+- `code-indexer status` -> discover indexed projects
+- `code-indexer search <project> "<query>"` -> primary lookup
+- `code-indexer references <project> <symbol>` / `code-indexer callers <project> <function>` -> dependency tracing
+- `code-indexer reindex <project>` -> refresh index
+- Use filesystem search only if both MCP and Code Indexer CLI are unavailable or insufficient.
 ## GIT operations
-use: `/Users/glebnikitin/work/rss/skills/git-publish/SKILL.md`
-
+- use: `/Users/glebnikitin/work/rss/skills/git-publish/SKILL.md`
 ## Rule Priority
 1. System/runtime constraints.
 2. User instructions.
@@ -96,53 +98,13 @@ use: `/Users/glebnikitin/work/rss/skills/git-publish/SKILL.md`
   - next checks:
 - Updated on every spec completion or significant change.
 
-## Execution model protocols
-- Default protocol: `Discuss`.
-- If user asks to design a spec: use `Plan`.
-- If user asks to implement/fix/run: use `Execute`.
-- If user explicitly asks CTO mode: use `CTO`.
-- Explicit user mode request overrides inferred mode.
-
-### Discuss protocol
-- Don't change anything besides context files to finalize discussion results.
-- Brainstorm with user to prepare all the important context files.
-- Intent first. Carefully log the intents in `./agent/roadmap/intent.md`.
-- Global intents: project goals
-- Planned intents: project trajectory
-- If a decision or action gets the project closer to global intents it's a success.
-- Moving towards global intents is the ultimate success criteria.
-- On protocol switch: write conversation summary to `state.md` notes for CTO handoff.
-
-### Cto protocol
-- CTO protocol is planning-only until explicit user approval. No file edits, side-effect commands, commits, or publishes before approval.
-- discuss work plan with user (CEO) before starting; agree on scope and priorities
-- after agreement: you are the CTO; all technical and execution decisions are yours
-- load full project context; `intent.md` defines success
-- CTO is an architect-orchestrator, not an executor
-- workflow per spec: write spec → user approves spec → spawn Execute agent → verify result → accept
-- user approves each spec before execution unless running in batch mode
-- batch mode: user pre-approves a queue of specs; CTO writes, executes, accepts sequentially without waiting
-- do not execute specs yourself unless the task is small enough that delegation overhead exceeds the work
-- agents receive everything they need in the spec; they should ask CTO, not load extra context
-- stop only if a decision fundamentally changes project direction or risks data loss
-- user accepts final results when all active intents are resolved
-- after no active intents remain, fallback to Discuss protocol
-
-### Plan protocol
-- load needed project context
-- verify spec alignment with `intent.md` global goals before writing spec.
-- user/agent task is your priority as success, `intent.md` is secondary priority.
-- Bugfixes discovered within the current spec scope must be added to that spec before acceptance.
-- if asked to execute while in plan mode switch to Execute protocol.
-
-### Execute protocol
-- ask questions if possible and needed before executing unless instructed not to ask questions
-- if you are given a ready spec: execute it, mark acceptance criteria as done
-- ad-hoc mode: if spec is empty or minimal, do the work and report results to user or CTO
-- marking `[x]` on acceptance criteria in the spec is allowed during execution
-- do not update context files or roadmap until work is accepted by user or CTO
-- If there is no ready spec, ask for user acceptance before launching Execute; after acceptance, open a spec and execute; without acceptance, switch to Plan protocol.
-
+## Personalization roles
+- Default role: `Discuss`.
+- If user asks to design a spec: use role `Plan`.
+- If user asks to implement/fix/run: use role `Execute`.
+- If user explicitly asks CTO mode: use role `CTO`.
+- Explicit user role request overrides inferred role.
+- add current role in every response as prefix: `[Role: <Discuss|Plan|Execute|CTO>]`.
 ## Logging
 - Format: `YYYY-MM-DD HH:MM | category | action | result`
 - Categories (log meaningful events only):

@@ -1,13 +1,19 @@
 # Architecture
 
-## Purpose
-- Git for human-llm interactions
+Canonical architecture detail lives in `./agent/docs/product.md` and `./agent/docs/integration.md`.
 
-## Stack
-- Git workflows + LLM agent orchestration
+## System Shape
+- `u-msg` is the thin messaging layer between UI clients and shared storage.
+- `u-msg` owns chain mechanics, protocol enforcement, summary fallback, unread semantics, and transport endpoints.
+- `u-db` owns durable storage behavior and shipped write/read/update commands.
+- `u-msg-ui` owns human-facing presentation and expects a fixed backend contract.
 
 ## Boundaries
-- Project-local tooling for human-LLM interaction via Git; no cross-project side effects by default.
+- Do not move generic DB behavior into `u-msg`.
+- Do not move UI state or presentation logic into `u-msg`.
+- Keep participant identities opaque and routing identity-agnostic.
 
-## Key Files
-- Add current entrypoints and modules as they become stable.
+## Load Next
+- `./agent/docs/index.md`
+- `./agent/docs/product.md`
+- `./agent/docs/integration.md`
