@@ -38,10 +38,10 @@ Add the MVP realtime path and finish the backend/UI contract wiring so newly wri
 - Do not add durable delivery tracking, broker infrastructure, or reconnect replay behavior in this spec.
 
 ## Acceptance Criteria
-- [ ] 1. Subscribed participants receive the documented `new_message` event after successful writes.
-- [ ] 2. Non-participants do not receive the event.
-- [ ] 3. A WebSocket delivery failure does not break the underlying durable write path.
-- [ ] 4. Event payload fields and enum values match the frozen UI contract exactly.
+- [x] 1. Subscribed participants receive the documented `new_message` event after successful writes.
+- [x] 2. Non-participants do not receive the event.
+- [x] 3. A WebSocket delivery failure does not break the underlying durable write path.
+- [x] 4. Event payload fields and enum values match the frozen UI contract exactly.
 
 ## Verification
 - `npm run typecheck`

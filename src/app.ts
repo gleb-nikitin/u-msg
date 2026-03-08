@@ -9,6 +9,7 @@ import { inboxRoutes } from "./routes/inbox.js";
 import { searchRoutes } from "./routes/search.js";
 import { sessionRoutes } from "./routes/sessions.js";
 import { streamWs } from "./ws/stream.js";
+import { MessagePublisher } from "./services/publish-new-message.js";
 
 export async function buildApp(config: Config) {
   const app = Fastify({ logger: true });
@@ -16,6 +17,10 @@ export async function buildApp(config: Config) {
   // Decorate with shared adapter
   const udb = new UDbAdapter(config);
   app.decorate("udb", udb);
+
+  // Decorate with realtime publisher
+  const publisher = new MessagePublisher();
+  app.decorate("publisher", publisher);
 
   // WebSocket support
   await app.register(websocket);

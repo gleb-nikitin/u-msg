@@ -2,15 +2,18 @@ import type { UDbAdapter } from "../adapters/u-db.js";
 import type { WriteResult } from "../lib/protocol-types.js";
 import type { ValidatedMessage } from "../lib/validate-message.js";
 import { generateSummary } from "../lib/summary.js";
+import type { MessagePublisher } from "./publish-new-message.js";
 
 /**
  * Write a new message to a chain (new or existing).
- * Handles summary fallback and builds the u-db column/value arrays.
+ * Handles summary fallback, builds u-db column/value arrays,
+ * and publishes new_message events to subscribed participants.
  */
 export async function writeMessage(
   udb: UDbAdapter,
   msg: ValidatedMessage,
   chainId?: string,
+  publisher?: MessagePublisher,
 ): Promise<WriteResult> {
   const summary = msg.summary ?? generateSummary(msg.content);
 
@@ -63,6 +66,15 @@ export async function writeMessage(
   }
 
   const result = await udb.writeMail(cols, vals);
+
+  // Fan out new_message event to subscribed participants (fire-and-forget)
+  if (publisher) {
+    try {
+      publisher.publish(notify, result, summary, msg.from_id);
+    } catch {
+      // WebSocket delivery failure must not break the write path
+    }
+  }
 
   return {
     msg_id: result.msg_id,

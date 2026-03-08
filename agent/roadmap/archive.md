@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 004-realtime-and-ui-contract-wiring
+- accepted: 2026-03-08
+- outcome: realtime `new_message` fan-out is wired end-to-end with participant-scoped WebSocket subscriptions, in-process connection registry, write-path publisher hooks, and a payload shape that matches the frozen UI contract.
+- verification: `npm run typecheck`, `npm test -- realtime` (13/13), `npm test` (76/76)
+- residuals: realtime remains intentionally in-process with no durable delivery/replay, broker, or provider-stream payloads in MVP.
+
 ## 003-chain-reads-and-read-state
 - accepted: 2026-03-08
 - outcome: chain history reads, chain/inbox unread aggregation, and mark-read cursor handling are implemented; long-chain truncation and silent list limits were removed, latest mark-read uses targeted max-seq lookup, and identifier/limit validation is now strict at route boundaries.

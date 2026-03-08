@@ -49,6 +49,7 @@
 - `npm test` must pass before commits.
 - `npm test -- write-message` runs write-flow tests only (mocked u-db, no live storage needed).
 - `npm test -- read-state` runs read/unread/mark-read flow tests (mocked u-db, no live storage needed).
+- `npm test -- realtime` runs WebSocket realtime fan-out tests (real WebSocket connections, mocked u-db).
 - `npm run preflight` should pass before first backend work on a new machine.
 - Use the always-on server ingress for UI-backed tests once the backend is ready to replace or coexist with the current stub path deliberately.
 - After each executor completion, the user will re-index the project with Code Indexer; assume fresh index data is available after that handoff step.

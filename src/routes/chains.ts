@@ -7,9 +7,14 @@ import { readMessageHistory } from "../services/read-message-history.js";
 import { listChains } from "../services/list-chains.js";
 import { markRead } from "../services/mark-read.js";
 import type { UDbAdapter } from "../adapters/u-db.js";
+import type { MessagePublisher } from "../services/publish-new-message.js";
 
 function getUdb(app: FastifyInstance): UDbAdapter {
   return (app as unknown as { udb: UDbAdapter }).udb;
+}
+
+function getPublisher(app: FastifyInstance): MessagePublisher {
+  return (app as unknown as { publisher: MessagePublisher }).publisher;
 }
 
 function parseOptionalLimit(raw: string | undefined): number | undefined {
@@ -59,7 +64,8 @@ export async function chainRoutes(app: FastifyInstance): Promise<void> {
 
     const validated = validateMessage(req.body);
     const udb = getUdb(app);
-    const result = await writeMessage(udb, validated);
+    const publisher = getPublisher(app);
+    const result = await writeMessage(udb, validated, undefined, publisher);
     return reply.status(201).send(result);
   });
 
@@ -75,7 +81,8 @@ export async function chainRoutes(app: FastifyInstance): Promise<void> {
       const chainId = safeIdentifier(req.params.chain_id, "chain_id");
       const validated = validateMessage(req.body);
       const udb = getUdb(app);
-      const result = await writeMessage(udb, validated, chainId);
+      const publisher = getPublisher(app);
+      const result = await writeMessage(udb, validated, chainId, publisher);
       return reply.status(201).send(result);
     },
   );

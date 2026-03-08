@@ -13,13 +13,14 @@
     "preflight": "bash /Users/glebnikitin/work/code/u-db/agent/scripts/init-hub-db.sh && bash /Users/glebnikitin/work/code/u-db/agent/scripts/smoke-hub-mvp.sh"
   },
   "dependencies": {
-    "fastify": "^5.3.3",
-    "@fastify/websocket": "^11.2.0"
+    "@fastify/websocket": "^11.2.0",
+    "fastify": "^5.3.3"
   },
   "devDependencies": {
-    "typescript": "^5.8.0",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
     "tsx": "^4.19.0",
-    "vitest": "^3.1.0",
-    "@types/node": "^22.0.0"
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
   }
 }
