@@ -297,6 +297,24 @@ describe("read-state flows", () => {
       expect(body[0].unread_count).toBe(1);
       expect(body[0].response_from).toBe("bob");
     });
+
+    it("handles multiline summary/content rows without adapter failure", async () => {
+      addMsg({
+        chain_id: "c-multiline",
+        seq: 1,
+        from_id: "u-llm",
+        notify: ["human"],
+        summary: "Line one\nLine two",
+        content: "First paragraph\nSecond paragraph",
+      });
+
+      const res = await app.inject({ method: "GET", url: "/api/chains?participant=human&limit=3" });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body).toHaveLength(1);
+      expect(body[0].chain_id).toBe("c-multiline");
+      expect(body[0].last_summary).toBe("Line one\nLine two");
+    });
   });
 
   describe("GET /api/inbox", () => {
