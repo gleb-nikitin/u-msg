@@ -34,6 +34,8 @@ export class UDbAdapter {
   private readonly updateCmd: string;
   private readonly mailTable: string;
   private readonly cursorTable: string;
+  /** Promise-chain mutex: serializes all u-db child process spawns. */
+  private queue: Promise<void> = Promise.resolve();
 
   constructor(config: Config) {
     this.writeCmd = config.udb.write;
@@ -56,7 +58,8 @@ export class UDbAdapter {
   /** Read messages from the configured mail table. */
   async readMail(where: string, order: string, limit?: number): Promise<StoredMessage[]> {
     const args = [this.mailTable, "--where", where, "--order", order];
-    if (limit !== undefined) args.push("--limit", String(limit));
+    // Always pass an explicit limit because u-db-read has a small implicit default.
+    args.push("--limit", String(limit ?? 100_000));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
   }
@@ -64,7 +67,8 @@ export class UDbAdapter {
   /** Read all recent mail (no where clause). */
   async readRecentMail(order: string, limit?: number): Promise<StoredMessage[]> {
     const args = [this.mailTable, "--order", order];
-    if (limit !== undefined) args.push("--limit", String(limit));
+    // Always pass an explicit limit because u-db-read has a small implicit default.
+    args.push("--limit", String(limit ?? 100_000));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
   }
@@ -105,20 +109,24 @@ export class UDbAdapter {
 
   // --- internal ---
 
-  private async exec(cmd: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
-    try {
-      return await execFileAsync(cmd, args, { timeout: 10_000 });
-    } catch (err: unknown) {
-      const e = err as { code?: number; exitCode?: number; stderr?: string; message?: string };
-      const exitCode = e.code ?? e.exitCode;
-      if (exitCode === EXIT_QUEUE_FAILURE) {
-        throw queueFailure("Storage queue failure — retry later");
-      }
-      if (exitCode === EXIT_CHAIN_ERROR) {
-        throw chainError("Unknown chain_id");
-      }
-      throw adapterError(`u-db command failed: ${e.stderr ?? e.message ?? "unknown error"}`);
-    }
+  private exec(cmd: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
+    return new Promise((resolve, reject) => {
+      this.queue = this.queue.then(async () => {
+        try {
+          resolve(await execFileAsync(cmd, args, { timeout: 10_000 }));
+        } catch (err: unknown) {
+          const e = err as { code?: number; exitCode?: number; stderr?: string; message?: string };
+          const exitCode = e.code ?? e.exitCode;
+          if (exitCode === EXIT_QUEUE_FAILURE) {
+            reject(queueFailure("Storage queue failure — retry later"));
+          } else if (exitCode === EXIT_CHAIN_ERROR) {
+            reject(chainError("Unknown chain_id"));
+          } else {
+            reject(adapterError(`u-db command failed: ${e.stderr ?? e.message ?? "unknown error"}`));
+          }
+        }
+      });
+    });
   }
 
   private parseWriteResult(stdout: string): WriteResult {
