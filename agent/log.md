@@ -28,3 +28,5 @@
 2026-03-08 18:48 | policy | marked LLM/provider implementation out of u-msg scope | Updated roadmap/state/intent/context/kb so this repo accepts protocol-only work and integration-support requests for external adapter projects.
 2026-03-08 18:58 | milestone | drafted and activated spec 006 | Added DB-prefix/UI-contract alignment spec from UI inbox report and switched roadmap state/context to active spec 006.
 2026-03-08 19:29 | milestone | accepted spec 006 and closed lifecycle | Re-verified typecheck/tests/check-mvp, archived spec 006, reset roadmap to no active spec, and updated KB/context for post-MVP protocol-only execution.
+2026-03-08 20:17 | policy | added launcher ergonomics to roadmap intent | Prioritized deterministic process-manager/app startup with explicit cwd/env/binary paths and reproducible health checks.
+2026-03-09 13:00 | policy | activated append-only small-fixes spec workflow | Opened spec 007 as the active stream for small protocol-safe fixes and set roadmap/context pointers to it.
