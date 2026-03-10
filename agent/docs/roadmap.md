@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Current Status
-- Active spec: `007`
+- Active spec: `none`
 - Next spec: `none`
-- Specs `001` through `006` are accepted; Spec `007` is active as an append-only small-fixes stream.
+- Specs `001` through `007` are accepted.
 
 ## Build Sequence
 1. Spec `001`: backend skeleton and storage adapter boundaries.
@@ -12,7 +12,7 @@
 4. Spec `004`: WebSocket `new_message` delivery and API/UI wiring.
 5. Spec `005`: search/session contract surfaces and operational validation without provider adapters.
 6. Spec `006`: DB-prefix connection (`msg`) and UI contract mismatch alignment for real backend switch.
-7. Spec `007`: append-only stream of small protocol-safe fixes.
+7. Spec `007`: append-only stream of small protocol-safe fixes (accepted).
 8. Ongoing post-MVP in this repo: protocol hardening, contract compatibility, and integration-support assets for external adapter projects.
 
 ## Standing Rules

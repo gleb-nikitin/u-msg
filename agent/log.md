@@ -30,3 +30,4 @@
 2026-03-08 19:29 | milestone | accepted spec 006 and closed lifecycle | Re-verified typecheck/tests/check-mvp, archived spec 006, reset roadmap to no active spec, and updated KB/context for post-MVP protocol-only execution.
 2026-03-08 20:17 | policy | added launcher ergonomics to roadmap intent | Prioritized deterministic process-manager/app startup with explicit cwd/env/binary paths and reproducible health checks.
 2026-03-09 13:00 | policy | activated append-only small-fixes spec workflow | Opened spec 007 as the active stream for small protocol-safe fixes and set roadmap/context pointers to it.
+2026-03-10 21:56 | milestone | accepted spec 007 and closed small-fixes stream | Archived spec 007 outcomes, reset roadmap to no active spec, and refreshed KB/context for dedicated-spec post-MVP execution.

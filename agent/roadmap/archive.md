@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 007-small-fixes
+- accepted: 2026-03-10
+- outcome: used an append-only small-fixes stream for protocol-safe hotfixes; delivered adapter hardening for multiline/irregular mail rows, explicit `u-db-read` limits in adapter read paths, and serialized `u-db` child-process execution to prevent concurrent write/read queue failures.
+- verification: `npm run typecheck`, `npm test` (85/85), live `GET /api/chains?participant=human&limit=3` returned `200` after fixes
+- residuals: larger post-MVP features (for example digest API and other additive read surfaces) should move to dedicated specs rather than the small-fixes stream.
+
 ## 006-msg-db-connection-and-ui-contract-alignment
 - accepted: 2026-03-08
 - outcome: backend storage targeting now uses a configurable table prefix (default `msg`), `GET /api/chains` exposes UI-required fields (`participants`, `response_from`, `last_summary`, `last_ts`) while preserving legacy compatibility fields, and write endpoints now support UI-style omitted `from_id`/`producer_key` through server-side defaults without changing protocol idempotency semantics.

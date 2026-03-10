@@ -1,10 +1,10 @@
 # Roadmap State
 
-- active_spec: 007
-- last_finished: 006
+- active_spec: none
+- last_finished: 007
 - next_spec: none
 - queue: []
-- next_direction: Use Spec 007 as an append-only stream for small protocol-safe fixes; open a dedicated spec for larger scope changes.
-- status_note: Specs 001-006 are accepted. Spec 007 is active for small fixes. Repository scope remains protocol-only; in-repo LLM/provider adapter implementation stays out of scope.
+- next_direction: No active execution spec. For additive features (for example digest API), open a dedicated new spec instead of reopening small-fixes scope.
+- status_note: Specs 001-007 are accepted. Repository scope remains protocol-only; in-repo LLM/provider adapter implementation stays out of scope.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md`, then `./agent/specs/007-small-fixes.md` before execution.
+- context_note: load `./agent/docs/index.md`, choose user-requested protocol, and activate the next dedicated spec before implementation.

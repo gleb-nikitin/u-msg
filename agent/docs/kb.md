@@ -11,7 +11,7 @@
 - `./agent/how-to/how-to-open-ai.md` — lazy-load note for the future OpenAI adapter direction, tradeoffs, and cited source paths.
 
 ## Known Debt
-- Specs `001` through `006` are complete.
+- Specs `001` through `007` are complete.
 - LLM/provider adapter implementation is out of scope for this repository roadmap; those adapters should live in separate projects that consume the `u-msg` protocol.
 - This repo should provide protocol compatibility guidance and integration-support artifacts for external adapter teams.
 - `check-mvp.sh` requires explicit `UMSG_CHECK_URL` because the always-on stub occupies `:8000`. Dev server and live validation must use a different port (e.g. `UMSG_PORT=18080`).
@@ -32,8 +32,8 @@
 - Neither endpoint should change its contract shape without a follow-up spec that defines the permanent model.
 
 ## Session Handoff
-- date: 2026-03-08
-- what changed: accepted Spec `006`, added archive/state closure, and shipped DB-prefix + UI contract alignment in backend behavior and tests.
-- why: unblocks switching `u-msg-ui` from stub to real backend by removing hardcoded `hub-*` table targets and matching UI-required chain/write contract expectations.
-- risks: changing compatibility fields/defaults can still regress external consumers if future edits remove legacy fields or header-derived defaults without a transition spec; always-on `u-msg-ui` still occupies host ports `8000`, `8001`, and `5173`.
-- next checks: run live `u-msg-ui` smoke against this backend path, then define the next post-MVP protocol-support spec (keep provider adapters out of repo scope).
+- date: 2026-03-10
+- what changed: accepted and closed Spec `007` (small-fixes stream) after adapter hardening for multiline row parsing, explicit read limits, and serialized `u-db` child-process execution.
+- why: removed recurring live failures (`/api/chains` parser breaks, silent read truncation, and concurrent load `QUEUE_FAILURE`) without changing protocol contracts.
+- risks: small-fixes stream should stay closed for large additive work; new read surfaces (for example digest API) require dedicated specs to avoid scope drift.
+- next checks: open the next dedicated post-MVP spec for additive features; keep protocol boundaries and external adapter scope unchanged.
