@@ -6,6 +6,7 @@ import { UDbAdapter } from "./adapters/u-db.js";
 import { healthRoutes } from "./routes/health.js";
 import { chainRoutes } from "./routes/chains.js";
 import { inboxRoutes } from "./routes/inbox.js";
+import { digestRoutes } from "./routes/digest.js";
 import { searchRoutes } from "./routes/search.js";
 import { sessionRoutes } from "./routes/sessions.js";
 import { streamWs } from "./ws/stream.js";
@@ -50,6 +51,7 @@ export async function buildApp(config: Config) {
   await app.register(healthRoutes);
   await app.register(chainRoutes);
   await app.register(inboxRoutes);
+  await app.register(digestRoutes);
   await app.register(searchRoutes);
   await app.register(sessionRoutes);
   await app.register(streamWs);

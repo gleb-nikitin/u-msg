@@ -72,6 +72,19 @@ export interface InboxEntry {
   max_seq: number;
 }
 
+/** Digest entry for per-message summary scanning across chains. */
+export interface DigestEntry {
+  chain_id: string;
+  seq: number;
+  from_id: string;
+  summary: string;
+  ts: string;
+  type: MessageType;
+}
+
+/** Digest response payload returned by GET /api/digest. */
+export type DigestResponse = DigestEntry[];
+
 /** WebSocket event for new messages. */
 export interface NewMessageEvent {
   type: "new_message";

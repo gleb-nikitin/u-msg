@@ -12,6 +12,7 @@
 
 ## Known Debt
 - Specs `001` through `007` are complete.
+- Spec `008` complete: `GET /api/digest` is live; digest scan window fixed at 10_000 messages (same cap as chain-list); avoid per-message `?seq=` query semantics without a dedicated follow-up spec.
 - LLM/provider adapter implementation is out of scope for this repository roadmap; those adapters should live in separate projects that consume the `u-msg` protocol.
 - This repo should provide protocol compatibility guidance and integration-support artifacts for external adapter teams.
 - `check-mvp.sh` requires explicit `UMSG_CHECK_URL` because the always-on stub occupies `:8000`. Dev server and live validation must use a different port (e.g. `UMSG_PORT=18080`).
@@ -33,7 +34,7 @@
 
 ## Session Handoff
 - date: 2026-03-10
-- what changed: accepted and closed Spec `007` (small-fixes stream) after adapter hardening for multiline row parsing, explicit read limits, and serialized `u-db` child-process execution.
-- why: removed recurring live failures (`/api/chains` parser breaks, silent read truncation, and concurrent load `QUEUE_FAILURE`) without changing protocol contracts.
-- risks: small-fixes stream should stay closed for large additive work; new read surfaces (for example digest API) require dedicated specs to avoid scope drift.
-- next checks: open the next dedicated post-MVP spec for additive features; keep protocol boundaries and external adapter scope unchanged.
+- what changed: implemented Spec `008` digest API surface with new `GET /api/digest?for={participant_id}&limit={N}` route/service, summary-only projection, limit default/cap behavior, and dedicated digest tests.
+- why: add compact per-message scanning across involved chains without altering existing read/write/realtime contracts.
+- risks: digest currently scans up to a fixed recent window (`10_000` messages) before filtering, consistent with existing chain-list brute-force behavior; very high-volume deployments may require future pagination/indexing work.
+- next checks: verify live probe responses against a running backend (`/api/digest?for=human`, `/api/digest?for=human&limit=50`) and keep drill-down path anchored on `GET /api/chains/{chain_id}/messages`.

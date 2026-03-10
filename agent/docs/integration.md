@@ -29,6 +29,7 @@
 - `POST /api/chains`
 - `POST /api/chains/{chain_id}/messages`
 - `GET /api/inbox?for={participant_id}`
+- `GET /api/digest?for={participant_id}&limit={N}`
 - `POST /api/chains/{chain_id}/read`
 - `GET /api/search?q={query}&project={project?}`
 - `GET /api/sessions`
@@ -43,6 +44,8 @@
 - Preferred read response: `204 No Content`.
 - UI requires `summary` on every message and exact enum values for `type`.
 - `GET /api/chains` returns UI fields `participants`, `response_from`, `last_summary`, `last_ts` and keeps compatibility fields `latest_summary`, `latest_ts`, `latest_from_id`.
+- `GET /api/digest` returns a flat list of per-message summaries across involved chains with fields `chain_id`, `seq`, `from_id`, `summary`, `ts`, `type`; default `limit=100`, hard cap `500`, no `content` field.
+- Digest drill-down path is `GET /api/chains/{chain_id}/messages`; this backend does not support per-message `?seq=` filtering.
 
 ## Realtime
 - Required WebSocket event: `{ "type": "new_message", "chain_id": "...", "seq": 0, "summary": "...", "from_id": "..." }`

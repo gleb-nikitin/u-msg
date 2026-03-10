@@ -31,3 +31,5 @@
 2026-03-08 20:17 | policy | added launcher ergonomics to roadmap intent | Prioritized deterministic process-manager/app startup with explicit cwd/env/binary paths and reproducible health checks.
 2026-03-09 13:00 | policy | activated append-only small-fixes spec workflow | Opened spec 007 as the active stream for small protocol-safe fixes and set roadmap/context pointers to it.
 2026-03-10 21:56 | milestone | accepted spec 007 and closed small-fixes stream | Archived spec 007 outcomes, reset roadmap to no active spec, and refreshed KB/context for dedicated-spec post-MVP execution.
+2026-03-10 22:00 | milestone | drafted and activated spec 008 | Added dedicated digest API spec with accepted contract corrections and switched roadmap/context to active spec 008.
+2026-03-10 22:15 | milestone | accepted spec 008 and closed digest API scope | Verified 5/5 digest tests and 90/90 full suite, confirmed no existing endpoint changes; archived spec 008 and reset roadmap to no active spec.

@@ -1,7 +1,7 @@
 # Roadmap
 
 ## Current Status
-- Active spec: `none`
+- Active spec: `008`
 - Next spec: `none`
 - Specs `001` through `007` are accepted.
 
@@ -13,7 +13,8 @@
 5. Spec `005`: search/session contract surfaces and operational validation without provider adapters.
 6. Spec `006`: DB-prefix connection (`msg`) and UI contract mismatch alignment for real backend switch.
 7. Spec `007`: append-only stream of small protocol-safe fixes (accepted).
-8. Ongoing post-MVP in this repo: protocol hardening, contract compatibility, and integration-support assets for external adapter projects.
+8. Spec `008`: additive digest read surface (`GET /api/digest`) for per-message summary scanning.
+9. Ongoing post-MVP in this repo: protocol hardening, contract compatibility, and integration-support assets for external adapter projects.
 
 ## Standing Rules
 - Keep the backend thin and route all durable storage through shipped `u-db` commands.

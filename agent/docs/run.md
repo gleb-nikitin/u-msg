@@ -65,6 +65,7 @@
 - `npm test` must pass before commits.
 - `npm test -- write-message` runs write-flow tests only (mocked u-db, no live storage needed).
 - `npm test -- read-state` runs read/unread/mark-read flow tests (mocked u-db, no live storage needed).
+- `npm test -- digest` runs digest read-surface tests (summary-only projection, limits, and involvement semantics).
 - `npm test -- realtime` runs WebSocket realtime fan-out tests (real WebSocket connections, mocked u-db).
 - `npm run preflight` should pass before first backend work on a new machine.
 - `UMSG_CHECK_URL=http://localhost:<port> ./agent/scripts/check-mvp.sh` validates the full backend surface against a running server.

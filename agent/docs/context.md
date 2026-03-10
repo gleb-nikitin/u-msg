@@ -4,6 +4,7 @@
 - Project: `u-msg`
 - Workspace: `/Users/glebnikitin/work/code/u-msg`
 - Active spec: `none`
+- Last finished: `008`
 - Next spec: `none`
 - Canonical entrypoint: `./agent/docs/index.md`
 
@@ -19,7 +20,7 @@
 - LLM/provider adapter implementation is now out of scope for this repository roadmap. `u-msg` is protocol-first and provider-neutral, and external projects should integrate against its contracts.
 
 ## Current Focus
-- Spec `007` is accepted; keep post-MVP execution protocol-first and start the next implementation only from a dedicated new spec.
+- All specs 001-008 accepted; no active spec.
 - Use the always-on server environment as the default UI/integration test surface once the backend can replace the current stubbed `chain-api` path cleanly.
 - Accept protocol-only requests and help external teams integrate the protocol without adding in-repo provider adapter code.
 - Keep agent startup deterministic through `./agent/docs/index.md`.

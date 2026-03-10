@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 008-digest-api
+- accepted: 2026-03-10
+- outcome: added `GET /api/digest?for={participant_id}&limit={N}` as an additive read surface; returns flat summary-only array sorted by `ts DESC`; reuses `notify`/`response_from`/`from_id` involvement semantics; limit default 100, cap 500; no existing endpoint contracts changed.
+- verification: `npm run typecheck`, `npm test` (90/90), `npm test -- digest` (5/5)
+- residuals: digest scan window fixed at 10_000 messages (consistent with chain-list brute-force); very high-volume deployments may need a future pagination/indexing spec. Redundant `.sort()` in `src/services/digest.ts:26` (after `readRecentMail("ts DESC", ...)`) is harmless dead code.
+
 ## 007-small-fixes
 - accepted: 2026-03-10
 - outcome: used an append-only small-fixes stream for protocol-safe hotfixes; delivered adapter hardening for multiline/irregular mail rows, explicit `u-db-read` limits in adapter read paths, and serialized `u-db` child-process execution to prevent concurrent write/read queue failures.
