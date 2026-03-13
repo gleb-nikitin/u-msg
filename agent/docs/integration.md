@@ -33,6 +33,7 @@
 - `POST /api/chains/{chain_id}/read`
 - `GET /api/search?q={query}&project={project?}`
 - `GET /api/sessions`
+- `POST /mcp`
 - `WS /ws/stream?participant={id}`
 
 ## Request/Response Notes
@@ -46,6 +47,10 @@
 - `GET /api/chains` returns UI fields `participants`, `response_from`, `last_summary`, `last_ts` and keeps compatibility fields `latest_summary`, `latest_ts`, `latest_from_id`.
 - `GET /api/digest` returns a flat list of per-message summaries across involved chains with fields `chain_id`, `seq`, `from_id`, `summary`, `ts`, `type`; default `limit=100`, hard cap `500`, no `content` field.
 - Digest drill-down path is `GET /api/chains/{chain_id}/messages`; this backend does not support per-message `?seq=` filtering.
+- `POST /mcp` exposes the same read/write capabilities via MCP Streamable HTTP tools on the same Fastify server.
+- MCP is stateless: no session identity, explicit `participant` parameters on write tools, and `UMSG_MCP_ENABLED=false` skips route registration entirely.
+- Current MCP tool set: `list_chains`, `get_inbox`, `get_digest`, `read_chain`, `send_message`, `create_chain`, `mark_read`.
+- MCP tool responses are thin wrappers over service results: success payloads are JSON text content, and backend `HttpError`s surface as MCP tool errors with `structuredContent: { statusCode, code }`.
 
 ## Realtime
 - Required WebSocket event: `{ "type": "new_message", "chain_id": "...", "seq": 0, "summary": "...", "from_id": "..." }`

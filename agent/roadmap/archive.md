@@ -1,6 +1,12 @@
 # Completed Specs
 # Append newest first.
 
+## 009-mcp-server
+- accepted: 2026-03-13
+- outcome: added `POST /mcp` as a stateless MCP Streamable HTTP endpoint on the existing Fastify server, exposed seven thin-wrapper tools over local `u-msg` services (`list_chains`, `get_inbox`, `get_digest`, `read_chain`, `send_message`, `create_chain`, `mark_read`), gated registration behind `UMSG_MCP_ENABLED`, and kept all existing HTTP route behavior unchanged.
+- verification: `npm run typecheck`, `npm test -- mcp` (5/5), `npm test` (95/95)
+- residuals: current MCP transport is intentionally request/response-oriented with `enableJsonResponse: true`; clients must send `Accept: application/json, text/event-stream`, and non-`initialize` calls must include `Mcp-Protocol-Version`. Long-lived sessionful/SSE-heavy MCP behavior would require a follow-up spec.
+
 ## 008-digest-api
 - accepted: 2026-03-10
 - outcome: added `GET /api/digest?for={participant_id}&limit={N}` as an additive read surface; returns flat summary-only array sorted by `ts DESC`; reuses `notify`/`response_from`/`from_id` involvement semantics; limit default 100, cap 500; no existing endpoint contracts changed.

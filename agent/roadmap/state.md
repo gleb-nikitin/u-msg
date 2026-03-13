@@ -1,10 +1,10 @@
 # Roadmap State
 
 - active_spec: none
-- last_finished: 008
+- last_finished: 009
 - next_spec: none
 - queue: []
-- next_direction: No active spec. Next work should be a new spec request from user.
-- status_note: Specs 001-008 are accepted. Spec 008 added `GET /api/digest` as an additive read surface. Repository scope remains protocol-only; in-repo LLM/provider adapter implementation stays out of scope.
+- next_direction: No active spec. MCP access is now available alongside the stable HTTP and WebSocket surfaces; future work should start from a new accepted spec.
+- status_note: Specs 001-009 are accepted. The backend now exposes MCP tools as a thin wrapper over existing u-msg services, with no new business logic.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md` before execution.
+- context_note: load `./agent/docs/index.md` before execution. No active spec.
