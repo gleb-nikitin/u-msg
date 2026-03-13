@@ -21,8 +21,8 @@ export interface StoredMessage {
 
 /** Payload for creating a new chain. */
 export interface NewChainRequest {
-  producer_key: string;
-  from_id: string;
+  producer_key?: string;
+  from_id?: string;
   notify: string[];
   response_from?: string | null;
   type: MessageType;
@@ -61,12 +61,29 @@ export interface MarkReadRequest {
 /** Inbox entry for a chain with unread info. */
 export interface InboxEntry {
   chain_id: string;
+  participants: string[];
+  response_from: string | null;
+  last_summary: string;
+  last_ts: string;
   latest_ts: string;
   latest_summary: string;
   latest_from_id: string;
   unread_count: number;
   max_seq: number;
 }
+
+/** Digest entry for per-message summary scanning across chains. */
+export interface DigestEntry {
+  chain_id: string;
+  seq: number;
+  from_id: string;
+  summary: string;
+  ts: string;
+  type: MessageType;
+}
+
+/** Digest response payload returned by GET /api/digest. */
+export type DigestResponse = DigestEntry[];
 
 /** WebSocket event for new messages. */
 export interface NewMessageEvent {

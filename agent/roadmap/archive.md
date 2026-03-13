@@ -1,6 +1,30 @@
 # Completed Specs
 # Append newest first.
 
+## 009-mcp-server
+- accepted: 2026-03-13
+- outcome: added `POST /mcp` as a stateless MCP Streamable HTTP endpoint on the existing Fastify server, exposed seven thin-wrapper tools over local `u-msg` services (`list_chains`, `get_inbox`, `get_digest`, `read_chain`, `send_message`, `create_chain`, `mark_read`), gated registration behind `UMSG_MCP_ENABLED`, and kept all existing HTTP route behavior unchanged.
+- verification: `npm run typecheck`, `npm test -- mcp` (5/5), `npm test` (95/95)
+- residuals: current MCP transport is intentionally request/response-oriented with `enableJsonResponse: true`; clients must send `Accept: application/json, text/event-stream`, and non-`initialize` calls must include `Mcp-Protocol-Version`. Long-lived sessionful/SSE-heavy MCP behavior would require a follow-up spec.
+
+## 008-digest-api
+- accepted: 2026-03-10
+- outcome: added `GET /api/digest?for={participant_id}&limit={N}` as an additive read surface; returns flat summary-only array sorted by `ts DESC`; reuses `notify`/`response_from`/`from_id` involvement semantics; limit default 100, cap 500; no existing endpoint contracts changed.
+- verification: `npm run typecheck`, `npm test` (90/90), `npm test -- digest` (5/5)
+- residuals: digest scan window fixed at 10_000 messages (consistent with chain-list brute-force); very high-volume deployments may need a future pagination/indexing spec. Redundant `.sort()` in `src/services/digest.ts:26` (after `readRecentMail("ts DESC", ...)`) is harmless dead code.
+
+## 007-small-fixes
+- accepted: 2026-03-10
+- outcome: used an append-only small-fixes stream for protocol-safe hotfixes; delivered adapter hardening for multiline/irregular mail rows, explicit `u-db-read` limits in adapter read paths, and serialized `u-db` child-process execution to prevent concurrent write/read queue failures.
+- verification: `npm run typecheck`, `npm test` (85/85), live `GET /api/chains?participant=human&limit=3` returned `200` after fixes
+- residuals: larger post-MVP features (for example digest API and other additive read surfaces) should move to dedicated specs rather than the small-fixes stream.
+
+## 006-msg-db-connection-and-ui-contract-alignment
+- accepted: 2026-03-08
+- outcome: backend storage targeting now uses a configurable table prefix (default `msg`), `GET /api/chains` exposes UI-required fields (`participants`, `response_from`, `last_summary`, `last_ts`) while preserving legacy compatibility fields, and write endpoints now support UI-style omitted `from_id`/`producer_key` through server-side defaults without changing protocol idempotency semantics.
+- verification: `npm run typecheck`, `npm test` (84/84), `UMSG_CHECK_URL=http://127.0.0.1:18080 ./agent/scripts/check-mvp.sh` (10 passed, 0 failed)
+- residuals: search/sessions remain the temporary Spec `005` contract (`status: "not_wired"`); permanent models still require a separate follow-up spec.
+
 ## 005-search-session-surfaces-and-ops
 - accepted: 2026-03-08
 - outcome: search and sessions endpoints now return deterministic temporary `status: "not_wired"` responses, the MVP check script validates HTTP + WS contract surfaces, and the KB documents real search/session follow-up and port-conflict operational constraints.

@@ -33,9 +33,11 @@
 |----------|---------|---------|
 | `UMSG_PORT` | `8000` | Server listen port |
 | `UMSG_HOST` | `0.0.0.0` | Server listen host |
+| `UMSG_MCP_ENABLED` | `true` | Register or skip the `POST /mcp` MCP endpoint |
 | `UDB_WRITE_CMD` | `u-db-write` | Override u-db-write command path |
 | `UDB_READ_CMD` | `u-db-read` | Override u-db-read command path |
 | `UDB_UPDATE_CMD` | `u-db-update` | Override u-db-update command path |
+| `UMSG_UDB_TABLE_PREFIX` | `msg` | Prefix for storage tables (`${prefix}-mail`, `${prefix}-mail_read_cursor`) |
 
 ## Stack (locked by spec 001)
 - Runtime: Node.js + TypeScript (ESM)
@@ -62,10 +64,18 @@
 ## Validation
 - `npm run typecheck` must pass before commits.
 - `npm test` must pass before commits.
+- `npm test -- mcp` runs MCP route tests (initialize, tools/list, tool calls, disable flag).
 - `npm test -- write-message` runs write-flow tests only (mocked u-db, no live storage needed).
 - `npm test -- read-state` runs read/unread/mark-read flow tests (mocked u-db, no live storage needed).
+- `npm test -- digest` runs digest read-surface tests (summary-only projection, limits, and involvement semantics).
 - `npm test -- realtime` runs WebSocket realtime fan-out tests (real WebSocket connections, mocked u-db).
 - `npm run preflight` should pass before first backend work on a new machine.
 - `UMSG_CHECK_URL=http://localhost:<port> ./agent/scripts/check-mvp.sh` validates the full backend surface against a running server.
 - Use the always-on server ingress for UI-backed tests once the backend is ready to replace or coexist with the current stub path deliberately.
 - After each executor completion, the user will re-index the project with Code Indexer; assume fresh index data is available after that handoff step.
+
+## MCP Probe
+- Local initialize probe:
+  - `curl -X POST http://127.0.0.1:18080/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"0.1"}}}'`
+- Local tools/list probe:
+  - `curl -X POST http://127.0.0.1:18080/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -H 'Mcp-Protocol-Version: 2025-03-26' -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'`

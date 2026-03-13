@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { badRequest } from "../lib/http-errors.js";
 import { safeIdentifier } from "../lib/safe-identifier.js";
-import { validateMessage } from "../lib/validate-message.js";
+import { defaultProducerKey, validateMessage } from "../lib/validate-message.js";
 import { writeMessage } from "../services/write-message.js";
 import { readMessageHistory } from "../services/read-message-history.js";
 import { listChains } from "../services/list-chains.js";
@@ -61,8 +61,16 @@ export async function chainRoutes(app: FastifyInstance): Promise<void> {
     if (!participantId || typeof participantId !== "string") {
       throw badRequest("X-Participant-Id header is required");
     }
+    const senderId = safeIdentifier(participantId, "X-Participant-Id");
+    const body = req.body as { from_id?: unknown } | null;
+    if (body && typeof body === "object" && body.from_id !== undefined && body.from_id !== senderId) {
+      throw badRequest("from_id must match X-Participant-Id when provided");
+    }
 
-    const validated = validateMessage(req.body);
+    const validated = validateMessage(req.body, {
+      from_id: senderId,
+      producer_key: defaultProducerKey(),
+    });
     const udb = getUdb(app);
     const publisher = getPublisher(app);
     const result = await writeMessage(udb, validated, undefined, publisher);
@@ -77,9 +85,17 @@ export async function chainRoutes(app: FastifyInstance): Promise<void> {
       if (!participantId || typeof participantId !== "string") {
         throw badRequest("X-Participant-Id header is required");
       }
+      const senderId = safeIdentifier(participantId, "X-Participant-Id");
+      const body = req.body as { from_id?: unknown } | null;
+      if (body && typeof body === "object" && body.from_id !== undefined && body.from_id !== senderId) {
+        throw badRequest("from_id must match X-Participant-Id when provided");
+      }
 
       const chainId = safeIdentifier(req.params.chain_id, "chain_id");
-      const validated = validateMessage(req.body);
+      const validated = validateMessage(req.body, {
+        from_id: senderId,
+        producer_key: defaultProducerKey(),
+      });
       const udb = getUdb(app);
       const publisher = getPublisher(app);
       const result = await writeMessage(udb, validated, chainId, publisher);

@@ -6,8 +6,10 @@ import { UDbAdapter } from "./adapters/u-db.js";
 import { healthRoutes } from "./routes/health.js";
 import { chainRoutes } from "./routes/chains.js";
 import { inboxRoutes } from "./routes/inbox.js";
+import { digestRoutes } from "./routes/digest.js";
 import { searchRoutes } from "./routes/search.js";
 import { sessionRoutes } from "./routes/sessions.js";
+import { mcpRoutes } from "./mcp/register.js";
 import { streamWs } from "./ws/stream.js";
 import { MessagePublisher } from "./services/publish-new-message.js";
 
@@ -50,8 +52,12 @@ export async function buildApp(config: Config) {
   await app.register(healthRoutes);
   await app.register(chainRoutes);
   await app.register(inboxRoutes);
+  await app.register(digestRoutes);
   await app.register(searchRoutes);
   await app.register(sessionRoutes);
+  if (config.mcp.enabled) {
+    await app.register(mcpRoutes);
+  }
   await app.register(streamWs);
 
   return app;

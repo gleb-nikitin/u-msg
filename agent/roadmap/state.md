@@ -1,9 +1,10 @@
 # Roadmap State
 
 - active_spec: none
-- last_finished: 005
+- last_finished: 009
 - next_spec: none
 - queue: []
-- status_note: Specs 001-005 are accepted and MVP backend surface is complete. No active execution spec; next work should start from a new post-MVP spec (likely provider-adapter planning/implementation) while preserving protocol-first boundaries.
+- next_direction: No active spec. MCP access is now available alongside the stable HTTP and WebSocket surfaces; future work should start from a new accepted spec.
+- status_note: Specs 001-009 are accepted. The backend now exposes MCP tools as a thin wrapper over existing u-msg services, with no new business logic.
 - context_entrypoint: ./agent/docs/index.md
-- context_note: load `./agent/docs/index.md`, then choose protocol by user request; if execution resumes, create/activate the next post-MVP spec before coding.
+- context_note: load `./agent/docs/index.md` before execution. No active spec.

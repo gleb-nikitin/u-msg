@@ -44,7 +44,7 @@ vi.mock("node:child_process", () => {
       const isWrite = cmd.includes("write");
       const isUpdate = cmd.includes("update");
 
-      if (isWrite && table === "hub-mail") {
+      if (isWrite && table === "msg-mail") {
         const colsIdx = args.indexOf("--cols");
         const cols = colsIdx >= 0 ? args[colsIdx + 1]!.split(",") : [];
         const valsIdx = args.indexOf("--vals");
@@ -84,7 +84,7 @@ vi.mock("node:child_process", () => {
         return;
       }
 
-      if (isWrite && table === "hub-mail_read_cursor") {
+      if (isWrite && table === "msg-mail_read_cursor") {
         const colsIdx = args.indexOf("--cols");
         const cols = colsIdx >= 0 ? args[colsIdx + 1]!.split(",") : [];
         const valsIdx = args.indexOf("--vals");
@@ -103,7 +103,7 @@ vi.mock("node:child_process", () => {
         return;
       }
 
-      if (isUpdate && table === "hub-mail_read_cursor") {
+      if (isUpdate && table === "msg-mail_read_cursor") {
         const colsIdx = args.indexOf("--cols");
         const cols = colsIdx >= 0 ? args[colsIdx + 1]!.split(",") : [];
         const valsIdx = args.indexOf("--vals");
@@ -124,7 +124,7 @@ vi.mock("node:child_process", () => {
 
       // Read operations
       if (!isWrite && !isUpdate) {
-        if (table === "hub-mail") {
+        if (table === "msg-mail") {
           const whereIdx = args.indexOf("--where");
           const where = whereIdx >= 0 ? args[whereIdx + 1]! : "";
           const orderIdx = args.indexOf("--order");
@@ -156,7 +156,7 @@ vi.mock("node:child_process", () => {
           return;
         }
 
-        if (table === "hub-mail_read_cursor") {
+        if (table === "msg-mail_read_cursor") {
           const whereIdx = args.indexOf("--where");
           const where = whereIdx >= 0 ? args[whereIdx + 1]! : "";
           const limitIdx = args.indexOf("--limit");
@@ -268,6 +268,12 @@ describe("read-state flows", () => {
       const body = res.json();
       expect(body).toHaveLength(1);
       expect(body[0].chain_id).toBe("c1");
+      expect(body[0].participants).toEqual(["alice", "bob"]);
+      expect(body[0].response_from).toBeNull();
+      expect(body[0].last_summary).toBe("Message 3");
+      expect(body[0].last_ts).toBe("2026-01-01T00:02:00Z");
+      expect(body[0].latest_summary).toBe(body[0].last_summary);
+      expect(body[0].latest_ts).toBe(body[0].last_ts);
       expect(body[0].unread_count).toBe(2);
       expect(body[0].max_seq).toBe(3);
     });
@@ -289,6 +295,25 @@ describe("read-state flows", () => {
       const body = res.json();
       expect(body).toHaveLength(1);
       expect(body[0].unread_count).toBe(1);
+      expect(body[0].response_from).toBe("bob");
+    });
+
+    it("handles multiline summary/content rows without adapter failure", async () => {
+      addMsg({
+        chain_id: "c-multiline",
+        seq: 1,
+        from_id: "u-llm",
+        notify: ["human"],
+        summary: "Line one\nLine two",
+        content: "First paragraph\nSecond paragraph",
+      });
+
+      const res = await app.inject({ method: "GET", url: "/api/chains?participant=human&limit=3" });
+      expect(res.statusCode).toBe(200);
+      const body = res.json();
+      expect(body).toHaveLength(1);
+      expect(body[0].chain_id).toBe("c-multiline");
+      expect(body[0].last_summary).toBe("Line one\nLine two");
     });
   });
 

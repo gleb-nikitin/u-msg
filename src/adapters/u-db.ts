@@ -10,7 +10,7 @@ const execFileAsync = promisify(execFile);
 const EXIT_QUEUE_FAILURE = 3;
 const EXIT_CHAIN_ERROR = 4;
 
-/** Column order returned by u-db-read hub-mail. */
+/** Column order returned by u-db-read mail table. */
 const MAIL_COLUMNS = [
   "ts", "producer_key", "msg_id", "chain_id", "seq", "from_id",
   "notify", "response_from", "type", "event_type", "external_ref",
@@ -32,35 +32,43 @@ export class UDbAdapter {
   private readonly writeCmd: string;
   private readonly readCmd: string;
   private readonly updateCmd: string;
+  private readonly mailTable: string;
+  private readonly cursorTable: string;
+  /** Promise-chain mutex: serializes all u-db child process spawns. */
+  private queue: Promise<void> = Promise.resolve();
 
   constructor(config: Config) {
     this.writeCmd = config.udb.write;
     this.readCmd = config.udb.read;
     this.updateCmd = config.udb.update;
+    this.mailTable = `${config.udb.tablePrefix}-mail`;
+    this.cursorTable = `${config.udb.tablePrefix}-mail_read_cursor`;
   }
 
-  /** Write a message to hub-mail. */
+  /** Write a message to the configured mail table. */
   async writeMail(cols: string[], vals: unknown[]): Promise<WriteResult> {
     const { stdout } = await this.exec(this.writeCmd, [
-      "hub-mail",
+      this.mailTable,
       "--cols", cols.join(","),
       "--vals", JSON.stringify(vals),
     ]);
     return this.parseWriteResult(stdout);
   }
 
-  /** Read messages from hub-mail. */
+  /** Read messages from the configured mail table. */
   async readMail(where: string, order: string, limit?: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--where", where, "--order", order];
-    if (limit !== undefined) args.push("--limit", String(limit));
+    const args = [this.mailTable, "--where", where, "--order", order];
+    // Always pass an explicit limit because u-db-read has a small implicit default.
+    args.push("--limit", String(limit ?? 100_000));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
   }
 
   /** Read all recent mail (no where clause). */
   async readRecentMail(order: string, limit?: number): Promise<StoredMessage[]> {
-    const args = ["hub-mail", "--order", order];
-    if (limit !== undefined) args.push("--limit", String(limit));
+    const args = [this.mailTable, "--order", order];
+    // Always pass an explicit limit because u-db-read has a small implicit default.
+    args.push("--limit", String(limit ?? 100_000));
     const { stdout } = await this.exec(this.readCmd, args);
     return this.parseMailRows(stdout);
   }
@@ -71,9 +79,9 @@ export class UDbAdapter {
     return rows.length > 0 ? rows[0]!.seq : 0;
   }
 
-  /** Read cursors from hub-mail_read_cursor. */
+  /** Read cursors from the configured read cursor table. */
   async readCursors(where?: string, limit?: number): Promise<ReadCursor[]> {
-    const args = ["hub-mail_read_cursor"];
+    const args = [this.cursorTable];
     if (where) args.push("--where", where);
     args.push("--limit", String(limit ?? 10000));
     const { stdout } = await this.exec(this.readCmd, args);
@@ -83,7 +91,7 @@ export class UDbAdapter {
   /** Write a new cursor row. */
   async writeCursor(chainId: string, participantId: string, seq: number): Promise<void> {
     await this.exec(this.writeCmd, [
-      "hub-mail_read_cursor",
+      this.cursorTable,
       "--cols", "chain_id,participant_id,read_through_seq",
       "--vals", JSON.stringify([chainId, participantId, seq]),
     ]);
@@ -92,7 +100,7 @@ export class UDbAdapter {
   /** Update an existing cursor row. */
   async updateCursor(chainId: string, participantId: string, seq: number): Promise<void> {
     await this.exec(this.updateCmd, [
-      "hub-mail_read_cursor",
+      this.cursorTable,
       "--cols", "read_through_seq",
       "--vals", JSON.stringify([seq]),
       "--where", `chain_id='${chainId}' AND participant_id='${participantId}'`,
@@ -101,20 +109,24 @@ export class UDbAdapter {
 
   // --- internal ---
 
-  private async exec(cmd: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
-    try {
-      return await execFileAsync(cmd, args, { timeout: 10_000 });
-    } catch (err: unknown) {
-      const e = err as { code?: number; exitCode?: number; stderr?: string; message?: string };
-      const exitCode = e.code ?? e.exitCode;
-      if (exitCode === EXIT_QUEUE_FAILURE) {
-        throw queueFailure("Storage queue failure — retry later");
-      }
-      if (exitCode === EXIT_CHAIN_ERROR) {
-        throw chainError("Unknown chain_id");
-      }
-      throw adapterError(`u-db command failed: ${e.stderr ?? e.message ?? "unknown error"}`);
-    }
+  private exec(cmd: string, args: string[]): Promise<{ stdout: string; stderr: string }> {
+    return new Promise((resolve, reject) => {
+      this.queue = this.queue.then(async () => {
+        try {
+          resolve(await execFileAsync(cmd, args, { timeout: 10_000 }));
+        } catch (err: unknown) {
+          const e = err as { code?: number; exitCode?: number; stderr?: string; message?: string };
+          const exitCode = e.code ?? e.exitCode;
+          if (exitCode === EXIT_QUEUE_FAILURE) {
+            reject(queueFailure("Storage queue failure — retry later"));
+          } else if (exitCode === EXIT_CHAIN_ERROR) {
+            reject(chainError("Unknown chain_id"));
+          } else {
+            reject(adapterError(`u-db command failed: ${e.stderr ?? e.message ?? "unknown error"}`));
+          }
+        }
+      });
+    });
   }
 
   private parseWriteResult(stdout: string): WriteResult {
@@ -134,13 +146,12 @@ export class UDbAdapter {
   }
 
   private parseMailRows(stdout: string): StoredMessage[] {
-    const lines = stdout.trim().split("\n");
-    if (lines.length < 2) return []; // header only or empty
-    // Skip header line
-    return lines.slice(1).filter(l => l.trim()).map(line => {
-      const cols = line.split("\t");
-      if (cols.length !== MAIL_COLUMNS.length) {
-        throw adapterError(`Unexpected mail row column count: ${cols.length}`);
+    const lines = this.parseMailDataLines(stdout);
+    if (lines.length === 0) return [];
+    return lines.map(line => {
+      const cols = this.normalizeMailColumns(line.split("\t"));
+      if (!cols) {
+        throw adapterError("Unexpected mail row column count: 0");
       }
       return {
         ts: cols[0]!,
@@ -162,9 +173,9 @@ export class UDbAdapter {
   }
 
   private parseCursorRows(stdout: string): ReadCursor[] {
-    const lines = stdout.trim().split("\n");
-    if (lines.length < 2) return [];
-    return lines.slice(1).filter(l => l.trim()).map(line => {
+    const lines = this.parseTsvDataLines(stdout);
+    if (lines.length === 0) return [];
+    return lines.map(line => {
       const cols = line.split("\t");
       if (cols.length !== CURSOR_COLUMNS.length) {
         throw adapterError(`Unexpected cursor row column count: ${cols.length}`);
@@ -175,6 +186,69 @@ export class UDbAdapter {
         read_through_seq: parseInt(cols[3]!, 10),
       };
     });
+  }
+
+  /**
+   * Parse TSV output while preserving trailing empty columns.
+   * Do not trim the full payload, because that drops terminal tab fields.
+   */
+  private parseTsvDataLines(stdout: string): string[] {
+    const normalized = stdout.replace(/\r\n/g, "\n");
+    const lines = normalized.split("\n");
+    if (lines.length === 0) return [];
+    if (lines.at(-1) === "") lines.pop();
+    if (lines.length <= 1) return []; // header only or empty
+    return lines.slice(1).filter((line) => line.length > 0);
+  }
+
+  /**
+   * Mail rows can contain embedded newlines and tabs in summary/content/meta.
+   * Reconstruct rows best-effort and normalize to 14 columns.
+   */
+  private parseMailDataLines(stdout: string): string[] {
+    const physical = this.parseTsvDataLines(stdout);
+    if (physical.length === 0) return [];
+
+    const rows: string[] = [];
+    let buffer = "";
+    for (const line of physical) {
+      buffer = buffer.length === 0 ? line : `${buffer}\n${line}`;
+      if (buffer.split("\t").length >= MAIL_COLUMNS.length) {
+        rows.push(buffer);
+        buffer = "";
+      }
+    }
+
+    if (buffer.length > 0) {
+      rows.push(buffer);
+    }
+
+    return rows;
+  }
+
+  /**
+   * Normalize rows to the current mail schema width.
+   * Returns null when the row cannot be parsed safely.
+   */
+  private normalizeMailColumns(cols: string[]): string[] | null {
+    if (cols.length === MAIL_COLUMNS.length) {
+      return cols;
+    }
+
+    if (cols.length > MAIL_COLUMNS.length) {
+      // Keep fixed prefix, fold overflow into content, keep trailing meta.
+      const fixed = cols.slice(0, 12);
+      const meta = cols.at(-1) ?? "";
+      const content = cols.slice(12, -1).join("\t");
+      return [...fixed, content, meta];
+    }
+
+    if (cols.length >= 12) {
+      // Tolerate truncated trailing fields by padding.
+      return [...cols, ...new Array(MAIL_COLUMNS.length - cols.length).fill("")];
+    }
+
+    return null;
   }
 
   private parseJsonArray(raw: string): string[] {

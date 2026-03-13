@@ -11,10 +11,15 @@
 - `./agent/how-to/how-to-open-ai.md` — lazy-load note for the future OpenAI adapter direction, tradeoffs, and cited source paths.
 
 ## Known Debt
-- Specs `001` through `005` are complete.
-- Provider adapter work for Claude, OpenAI, and Ollama is intentionally deferred and still needs a later spec, with Ollama explicitly last.
-- OpenAI adapter decomposition is still pending, but the current default is `Responses API`; `Agents SDK` is only a fallback if later requirements need OpenAI-native orchestration.
+- Specs `001` through `007` are complete.
+- Spec `008` complete: `GET /api/digest` is live; digest scan window fixed at 10_000 messages (same cap as chain-list); avoid per-message `?seq=` query semantics without a dedicated follow-up spec.
+- Spec `009` complete: `POST /mcp` now exposes a thin MCP wrapper over local services with tools for chains, inbox, digest, read, write, and mark-read flows, gated by `UMSG_MCP_ENABLED`.
+- LLM/provider adapter implementation is out of scope for this repository roadmap; those adapters should live in separate projects that consume the `u-msg` protocol.
+- This repo should provide protocol compatibility guidance and integration-support artifacts for external adapter teams.
 - `check-mvp.sh` requires explicit `UMSG_CHECK_URL` because the always-on stub occupies `:8000`. Dev server and live validation must use a different port (e.g. `UMSG_PORT=18080`).
+- MCP SDK transport detail: `POST /mcp` requests must send `Accept: application/json, text/event-stream`; non-`initialize` calls also require `Mcp-Protocol-Version`. The Fastify route uses stateless transport with JSON response mode for request/response-style tool calls.
+- UI mismatch source for Spec `006`: `agent/inbox/2026-03-08-ui-contract-mismatches.md`.
+- Spec `006` implementation notes: adapter table targets are now prefix-driven (`UMSG_UDB_TABLE_PREFIX`, default `msg`), `/api/chains` now includes UI fields (`participants`, `response_from`, `last_summary`, `last_ts`) alongside legacy fields, and write endpoints default missing `from_id`/`producer_key` server-side.
 
 ## Search/Session Follow-Up
 - Both `GET /api/search` and `GET /api/sessions` currently return `status: "not_wired"` with empty result arrays. This is the Spec `005` temporary surface.
@@ -30,8 +35,13 @@
 - Neither endpoint should change its contract shape without a follow-up spec that defines the permanent model.
 
 ## Session Handoff
-- date: 2026-03-08
-- what changed: accepted Spec `005`, archived it, and closed MVP backend execution scope after verifying deterministic temporary `search`/`sessions` surfaces and the explicit `UMSG_CHECK_URL` operational check path.
-- why: the remaining MVP contract surfaces are now implemented and documented with stable temporary behavior, and the full endpoint/WS check script passed against an explicit non-`8000` local server URL.
-- risks: `search` and `sessions` are intentionally temporary (`status: "not_wired"`); replacing them without an accepted post-MVP spec could create model drift. Always-on `u-msg-ui` still occupies host ports `8000`, `8001`, and `5173`.
-- next checks: no auditor launch needed now; create the next post-MVP spec (provider-adapter planning/implementation), then summon executor(s) against that new spec.
+- date: 2026-03-13
+- what changed: accepted Spec `009`; added MCP server support behind `POST /mcp`, wired conditional registration via `UMSG_MCP_ENABLED`, added MCP route tests, and installed `@modelcontextprotocol/sdk` with `zod@3`.
+- why: expose the existing `u-msg` read/write services as MCP tools for LLM clients without adding loopback HTTP or new business logic.
+- risks: the current MCP route is intentionally stateless and request/response oriented; future clients that depend on long-lived SSE streams or sessionful MCP semantics would need a follow-up spec.
+- next checks: run a live `initialize` and `tools/list` probe against a real local server on a non-`8000` port, then validate an end-to-end `send_message` or `create_chain` call once storage is available.
+- date: 2026-03-10
+- what changed: implemented Spec `008` digest API surface with new `GET /api/digest?for={participant_id}&limit={N}` route/service, summary-only projection, limit default/cap behavior, and dedicated digest tests.
+- why: add compact per-message scanning across involved chains without altering existing read/write/realtime contracts.
+- risks: digest currently scans up to a fixed recent window (`10_000` messages) before filtering, consistent with existing chain-list brute-force behavior; very high-volume deployments may require future pagination/indexing work.
+- next checks: verify live probe responses against a running backend (`/api/digest?for=human`, `/api/digest?for=human&limit=50`) and keep drill-down path anchored on `GET /api/chains/{chain_id}/messages`.
